@@ -269,3 +269,37 @@ export interface ClientToServerEvents {
   interactableUpdate: (update: Interactable) => void;
   interactableCommand: (command: InteractableCommand & InteractableCommandBase) => void;
 }
+
+export type Drawing = {
+  drawingID: String,
+  authorID: String,
+  /**
+   *  Even though the `userDrawing` string encodes the dimension,
+   *  It is useful to supply them here.
+   * 
+   *  The drawing library will scale images to fit new dimensions, but we may not wish to allow that.
+   */    
+  length: number,
+  width: number,
+
+  metadata?: {
+      // Support arbitrary metadata, since we probably won't need to use it very often.
+      // Could be nice to track timestamps ("Drawing created on..."), etc.
+      [field: string]: string | number
+  },
+
+  /**
+   *  This is a JSON string produced by the drawing library.
+   *  It contains a the canvas dimensions, as well as every single point drawn on the canvas.
+   *  This field can understandably become very large.
+   * 
+   *  The library author suggests using a compression 
+   *  algorithm such as @link https://github.com/pieroxy/lz-string
+   *  in order to keep sizes small.
+   * 
+   *  The important part is that ALL Drawings are compressed.
+   *  It will cause issues if we have different procedures across the project.
+   * 
+   */
+  userDrawing: String
+}
