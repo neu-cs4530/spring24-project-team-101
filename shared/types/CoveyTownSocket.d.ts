@@ -242,7 +242,7 @@ export type InteractableCommandReturnType<CommandType extends InteractableComman
   CommandType extends ViewingAreaUpdateCommand ? undefined :
   CommandType extends GameMoveCommand<TicTacToeMove> ? undefined :
   CommandType extends LeaveGameCommand ? undefined :
-  never;
+  never;type
 
 export type InteractableCommandResponse<MessageType> = {
   commandID: CommandID;
@@ -303,3 +303,30 @@ export type Drawing = {
    */
   userDrawing: String
 }
+
+export interface TelestrationsGameState extends GameState {
+  // The players in gameplay order.
+  players: ReadonlyArray<PlayerID>
+  // The drawings and guesses in this game.
+  // `chains[n]` is an alternating array of words and drawings
+  // starting with the word picked by the `n`th player.
+  chains: ReadonlyArray<ReadonlyArray<TelestrationsMove>>;
+  // Whether each player is ready to start the game
+  playersReady: ReadonlyArray<boolean>;
+}
+
+/**
+ * Type for a move in Telestrations
+ * Specifies the type of the action.
+ * If `action` is 'PICK_WORD', then `word` is the word.
+ * If `action` is 'GUESS', then `word` is the guess.
+ * If `action` is 'DRAW', `word` is ignored and `drawing` is populated.
+ * Otherwise, `drawing` is ignored.
+ */
+export interface TelestrationsMove {
+  action: TelestrationsAction,
+  word?: String,
+  drawing?: Drawing,
+}
+
+export type TelestrationsAction = 'PICK_WORD' | 'DRAW' | 'GUESS';
