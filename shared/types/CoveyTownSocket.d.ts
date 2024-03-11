@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: TypedInteractable[];
 }
 
-export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea';
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'DrawingArea';
 export interface Interactable {
   type: InteractableType;
   id: InteractableID;
@@ -72,6 +72,10 @@ export interface ViewingArea extends Interactable {
   video?: string;
   isPlaying: boolean;
   elapsedTimeSec: number;
+}
+
+export interface DrawingArea extends Interactable {
+  drawing?: Drawing;
 }
 
 export type GameStatus = 'IN_PROGRESS' | 'WAITING_TO_START' | 'OVER' | 'WAITING_FOR_PLAYERS';
@@ -216,7 +220,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand;
+export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand | SaveDrawingCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -231,6 +235,11 @@ export interface LeaveGameCommand {
 export interface StartGameCommand {
   type: 'StartGame';
   gameID: GameInstanceID;
+}
+
+export interface SaveDrawingCommand {
+  type: 'SaveDrawing';
+  drawing: Drawing;
 }
 export interface GameMoveCommand<MoveType> {
   type: 'GameMove';
@@ -271,8 +280,9 @@ export interface ClientToServerEvents {
 }
 
 export type Drawing = {
-  drawingID: String,
-  authorID: String,
+  save(): unknown;
+  drawingID: string,
+  authorID: string,
   /**
    *  Even though the `userDrawing` string encodes the dimension,
    *  It is useful to supply them here.
@@ -301,5 +311,5 @@ export type Drawing = {
    *  It will cause issues if we have different procedures across the project.
    * 
    */
-  userDrawing: String
+  userDrawing: string
 }
