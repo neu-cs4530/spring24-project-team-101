@@ -5,7 +5,6 @@ import {
   ViewingArea,
   GameArea,
   ConnectFourGameState,
-  DrawingArea,
 } from './CoveyTownSocket';
 
 /**
@@ -13,13 +12,6 @@ import {
  */
 export function isConversationArea(interactable: Interactable): interactable is ConversationArea {
   return interactable.type === 'ConversationArea';
-}
-
-/**
- * Test to see if an interactable is a drawing area
- */
-export function isDrawingArea(interactable: Interactable): interactable is DrawingArea {
-  return interactable.type === 'DrawingArea';
 }
 
 /**
