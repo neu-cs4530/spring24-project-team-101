@@ -1,19 +1,41 @@
+import { createPlayerForTesting } from '../../TestUtils';
+import TelestrationsGame from './TelestrationsGame';
+import { TelestrationsGameState } from '../../types/CoveyTownSocket';
+import { PLAYER_ALREADY_IN_GAME_MESSAGE } from '../../lib/InvalidParametersError';
+
 describe('Telestrations Game', () => {
+  let game: TelestrationsGame;
+
+  beforeEach(() => {
+    game = new TelestrationsGame('state' as unknown as TelestrationsGameState);
+  });
   describe('Join', () => {
     it('should throw an error if the player is already in the game', () => {
-      // TODO
+      const player1 = createPlayerForTesting();
+      game.join(player1);
+      expect(() => game.join(player1)).toThrowError(PLAYER_ALREADY_IN_GAME_MESSAGE);
     });
     test('a player who joins is the last player in the rotation order', () => {
-      // TODO
+      const player1 = createPlayerForTesting();
+      game.join(player1);
+      expect(game.state.players[game.state.players.length - 1]).toBe(player1.id);
     });
   });
 
   describe('Leave', () => {
     it('should throw an error if the player is not in the game', () => {
-      // TODO
+      const player1 = createPlayerForTesting();
+      expect(() => game.leave(player1)).toThrowError('Player not in game');
     });
     test('if the game is in progress and any player leaves, the game ends', () => {
-      // TODO
+      const player1 = createPlayerForTesting();
+      const player2 = createPlayerForTesting();
+      game.join(player1);
+      game.join(player2);
+      game.startGame(player1);
+      game.startGame(player2);
+      game.leave(player1);
+      // expect game status to be over
     });
     test('if the game is over and the player leaves, the state is not updated', () => {
       // TODO
