@@ -28,6 +28,15 @@ export default class DrawingArea extends InteractableArea {
         throw new InvalidParametersError('No drawing to save');
       }
       drawing.save();
+      // potentially send the image somewhere
+      return undefined as InteractableCommandReturnType<CommandType>;
+    }
+    if (command.type === 'ExitDrawing') {
+      const drawing = this._drawing;
+      if (!drawing) {
+        throw new InvalidParametersError('No drawing to exit');
+      }
+      drawing.exit();
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     throw new InvalidParametersError(INVALID_COMMAND_MESSAGE);
