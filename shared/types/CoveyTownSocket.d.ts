@@ -313,6 +313,8 @@ export interface TelestrationsGameState extends GameState {
   chains: ReadonlyArray<ReadonlyArray<TelestrationsMove>>,
   // Whether each player is ready to start the game
   playersReady: ReadonlyArray<PlayerID>,
+  // the current state of the game
+  gamePhase: TelestrationsAction;
 }
 
 /**
