@@ -2,22 +2,43 @@ import { Button, chakra, Container, useToast } from '@chakra-ui/react';
 import ConnectFourAreaController, {
   ConnectFourCell,
 } from '../../../classes/interactable/ConnectFourAreaController';
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ConnectFourColIndex } from '../../../types/CoveyTownSocket';
 import CanvasDraw from 'react-canvas-draw';
 
 export default function DrawingCanvas(): JSX.Element {
-  const [color, setColor] = useState('#ffc600');
+  const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
+  const [saveData, setSaveData] = useState('');
+  const canvas = new CanvasDraw({
+    hideGrid: true,
+    brushColor: color,
+    brushRadius: radius,
+    lazyRadius: 0,
+  });
+  const canvasRef = useRef(canvas);
+
+  //const canvas = <CanvasDraw hideGrid brushColor={color} brushRadius={radius} lazyRadius={0}></CanvasDraw>;
 
   return (
     <div>
-      <CanvasDraw hideGrid brushColor={color} brushRadius={radius} lazyRadius={0}></CanvasDraw>
+      <CanvasDraw
+        ref={canvasRef}
+        hideGrid
+        brushColor={color}
+        brushRadius={radius}
+        lazyRadius={0}></CanvasDraw>
       <Button
         onClick={() => {
-          setColor('#' + Math.floor(Math.random() * 16777215).toString(16));
+          setColor('#000000');
         }}>
-        New color
+        Draw
+      </Button>
+      <Button
+        onClick={() => {
+          setColor('#ffffff');
+        }}>
+        Erase
       </Button>
       <Button
         onClick={() => {
@@ -31,11 +52,28 @@ export default function DrawingCanvas(): JSX.Element {
         }}>
         Size down
       </Button>
-      {
-        // issue: saving/loading seem to be methods of the CanvasDrawing class, whereas everything here is functions
-        // is there a good way to use class-based components inside an app that uses function-based components?
-        // alternately, is there a way to use those methods regardless of the class??
-      }
+      <Button
+        onClick={() => {
+          setSaveData(canvasRef.current.getSaveData());
+        }}>
+        Save
+      </Button>
+      <Button
+        onClick={() => {
+          canvasRef.current.loadSaveData(saveData, true);
+        }}>
+        Load
+      </Button>
+      {/* <Button
+        onClick={() => {
+          // following https://github.com/embiem/react-canvas-draw/issues/143
+          // @ts-ignore: Unreachable code error
+          const url = canvasRef.current.getDataUrl('png', false, '#ffffff');
+          // problem: still thinks that methods doesn't exist, but I can see it in the source code...
+          window.open(url);
+        }}>
+        Download
+      </Button> */}
     </div>
   );
 }
