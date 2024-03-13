@@ -312,7 +312,7 @@ export interface TelestrationsGameState extends GameState {
   // starting with the word picked by the `n`th player.
   chains: ReadonlyArray<ReadonlyArray<TelestrationsMove>>,
   // Whether each player is ready to start the game
-  playersReady: ReadonlyArray<boolean>,
+  playersReady: ReadonlyArray<PlayerID>,
 }
 
 /**
