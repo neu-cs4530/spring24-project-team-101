@@ -2,12 +2,18 @@ import { createPlayerForTesting } from '../../TestUtils';
 import TelestrationsGame from './TelestrationsGame';
 import { TelestrationsGameState } from '../../types/CoveyTownSocket';
 import { PLAYER_ALREADY_IN_GAME_MESSAGE } from '../../lib/InvalidParametersError';
+import Player from '../../lib/Player';
 
 describe('Telestrations Game', () => {
   let game: TelestrationsGame;
+  let players: Array<Player>;
 
   beforeEach(() => {
     game = new TelestrationsGame('state' as unknown as TelestrationsGameState);
+    players = [];
+    for (let i = 0; i < 8; i++) {
+      players.push(createPlayerForTesting());
+    }
   });
   describe('Join', () => {
     it('should throw an error if the player is already in the game', () => {
@@ -38,13 +44,76 @@ describe('Telestrations Game', () => {
       // expect game status to be over
     });
     test('if the game is over and the player leaves, the state is not updated', () => {
-      // TODO
+      const player1 = players[0];
+      const player2 = players[1];
+      game.join(player1);
+      game.join(player2);
+      game.startGame(player1);
+      game.startGame(player2);
+      expect(game.state.players).toContain(player1.id);
+      expect(game.state.players).toContain(player2.id);
+      game.leave(player1);
+      expect(game.state.status).toBe('OVER');
+      const stateBeforeLeaving = { ...game.state };
+      game.leave(player2);
+      expect(game.state).toEqual(stateBeforeLeaving);
     });
-    test('if the game is WAITING_TO_START and a player leaves, the other players readiness is preserved', () => {
-      // TODO
+    test('if the game is WAITING_TO_START and a ready player leaves, that player is removed from the ready list', () => {
+      // add players to the game and make all of them except player 1 ready
+      for (const player of players) {
+        game.join(player);
+        if (player !== players[0]) {
+          game.startGame(player);
+        }
+      }
+
+      // Player 1 isn't in the game to avoid starting
+      expect(game.state.playersReady).not.toContain(players[0]);
+      players.slice(1).forEach(p => expect(game.state.playersReady).toContain(p.id));
+
+      for (const player of players) {
+        game.leave(player);
+        expect(game.state.playersReady).not.toContain(player.id);
+      }
     });
+
+    test('if the game is WAITING_TO_START and a player leaves, the other player`s readiness is preserved', () => {
+      // add players to the game and make all of them except player 1 ready
+      for (const player of players) {
+        game.join(player);
+        if (player !== players[0]) {
+          game.startGame(player);
+        }
+      }
+
+      // Player 1 isn't in the game to avoid starting
+      expect(game.state.playersReady).not.toContain(players[0]);
+      // For each ready player...
+      for (let i = 1; i < players.length; i++) {
+        // Leave the game and check that.
+        game.leave(players[i]);
+        expect(game.state.playersReady).not.toContain(players[i].id);
+        // For each remaining player...
+        for (let j = i; j < players.length; j++) {
+          // make sure they're still ready.
+          expect(game.state.playersReady).toContain(players[j].id);
+        }
+      }
+    });
+
     test('if the game is WAITING_TO_START and the only unready player leaves and there are two or more players, the game starts', () => {
-      // TODO
+      players.slice(1).forEach(p => game.join(p));
+      // All players except 1 are ready:
+      expect(game.state.playersReady).not.toContain(players[0].id);
+      players.slice(1).forEach(p => expect(game.state.playersReady).toContain(p.id));
+
+      expect(game.state.status).toBe('WAITING_TO_START');
+
+      // Remove player 1
+      game.leave(players[0]);
+      // All players are ready:
+      players.forEach(p => expect(game.state.playersReady).toContain(p.id));
+      expect(game.state.status).toBe('IN_PROGRESS');
     });
   });
 
