@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: TypedInteractable[];
 }
 
-export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea';
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'TelestrationsArea';
 export interface Interactable {
   type: InteractableType;
   id: InteractableID;
@@ -271,8 +271,8 @@ export interface ClientToServerEvents {
 }
 
 export type Drawing = {
-  drawingID: String,
-  authorID: String,
+  drawingID: string,
+  authorID: string,
   /**
    *  Even though the `userDrawing` string encodes the dimension,
    *  It is useful to supply them here.
@@ -301,5 +301,48 @@ export type Drawing = {
    *  It will cause issues if we have different procedures across the project.
    * 
    */
-  userDrawing: String
+  userDrawing: string
+}
+
+// TELESTRATIONS INTERFACES
+
+// Represents a player's drawing based on a word or another drawing
+export interface TelestrationsDrawingMove {
+  type: 'Drawing';
+  drawing: string; // This could represent a serialized drawing or a reference to an image
+}
+
+// Represents a player's guess based on a drawing
+export interface TelestrationsGuessMove {
+  type: 'Guess';
+  guess: string;
+}
+
+// Union type for a move in Telestrations
+export type TelestrationsMove = TelestrationsDrawingMove | TelestrationsGuessMove;
+
+
+// The state of a Telestrations game
+export interface TelestrationsGameState extends GameState {
+  moves: ReadonlyArray<TelestrationsMove>;
+  // Optionally, the initial word for the first drawing
+  initialWord?: string;
+  // Players' scores can be tracked if desired
+  scores?: { [playerID: string]: number };
+}
+
+// Extending InteractableCommand to include Telestrations-specific actions
+export type TelestrationsInteractableCommand =
+  | InteractableCommand
+  | StartTelestrationsGameCommand
+  | SubmitTelestrationsMoveCommand;
+
+export interface StartTelestrationsGameCommand extends InteractableCommandBase {
+  type: 'StartTelestrationsGame';
+  initialWord: string;
+}
+
+export interface SubmitTelestrationsMoveCommand extends InteractableCommandBase {
+  type: 'SubmitTelestrationsMove';
+  move: TelestrationsMove;
 }
