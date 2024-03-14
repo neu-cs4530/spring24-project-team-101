@@ -5,10 +5,12 @@ import ConnectFourAreaController, {
 import React, { useRef, useState } from 'react';
 import { ConnectFourColIndex } from '../../../types/CoveyTownSocket';
 import CanvasDraw from 'react-canvas-draw';
+import { CirclePicker, CompactPicker, PhotoshopPicker } from 'react-color';
 
 export default function DrawingCanvas(): JSX.Element {
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
+  const [erase, setErase] = useState(false);
   const [saveData, setSaveData] = useState('');
   const canvas = new CanvasDraw({
     hideGrid: true,
@@ -17,28 +19,47 @@ export default function DrawingCanvas(): JSX.Element {
     lazyRadius: 0,
   });
   const canvasRef = useRef(canvas);
-
-  //const canvas = <CanvasDraw hideGrid brushColor={color} brushRadius={radius} lazyRadius={0}></CanvasDraw>;
+  // @ts-ignore
+  const handleColorChange = ({ hex }) => setColor(hex);
 
   return (
     <div>
       <CanvasDraw
         ref={canvasRef}
         hideGrid
-        brushColor={color}
+        brushColor={erase ? '#ffffff' : color}
         brushRadius={radius}
         lazyRadius={0}></CanvasDraw>
-      <Button
+      {/* <Button
         onClick={() => {
           setColor('#000000');
         }}>
-        Draw
-      </Button>
+        Color
+      </Button> */}
+      {/* @ts-ignore */}
+      <CirclePicker
+        aria-label='color picker'
+        colors={[
+          '#000000',
+          '#999999',
+          '#8B572A',
+          '#D0021B',
+          '#FF6900',
+          '#F8E71C',
+          '#68BC00',
+          '#009688',
+          '#03A9F4',
+          '#004DCF',
+          '#9013FE',
+          '#FA28FF',
+        ]}
+        onChangeComplete={handleColorChange}></CirclePicker>
       <Button
+        aria-label='toggle erase'
         onClick={() => {
-          setColor('#ffffff');
+          setErase(!erase);
         }}>
-        Erase
+        {erase ? 'Draw' : 'Erase'}
       </Button>
       <Button
         onClick={() => {
