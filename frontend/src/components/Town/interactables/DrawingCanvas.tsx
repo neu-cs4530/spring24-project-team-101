@@ -4,10 +4,14 @@ import ConnectFourAreaController, {
 } from '../../../classes/interactable/ConnectFourAreaController';
 import React, { useRef, useState } from 'react';
 import { ConnectFourColIndex } from '../../../types/CoveyTownSocket';
-import CanvasDraw from 'react-canvas-draw';
+import CanvasDraw from './react-canvas-draw/src/index';
 import { CirclePicker, CompactPicker, PhotoshopPicker } from 'react-color';
 
-export default function DrawingCanvas(): JSX.Element {
+export type DrawingCanvasProps = {
+  telestrations?: boolean;
+};
+
+export default function DrawingCanvas({ telestrations = false }: DrawingCanvasProps): JSX.Element {
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
@@ -30,13 +34,6 @@ export default function DrawingCanvas(): JSX.Element {
         brushColor={erase ? '#ffffff' : color}
         brushRadius={radius}
         lazyRadius={0}></CanvasDraw>
-      {/* <Button
-        onClick={() => {
-          setColor('#000000');
-        }}>
-        Color
-      </Button> */}
-      {/* @ts-ignore */}
       <CirclePicker
         aria-label='color picker'
         colors={[
@@ -73,28 +70,54 @@ export default function DrawingCanvas(): JSX.Element {
         }}>
         Size down
       </Button>
-      <Button
-        onClick={() => {
-          setSaveData(canvasRef.current.getSaveData());
-        }}>
-        Save
-      </Button>
-      <Button
-        onClick={() => {
-          canvasRef.current.loadSaveData(saveData, true);
-        }}>
-        Load
-      </Button>
-      {/* <Button
-        onClick={() => {
-          // following https://github.com/embiem/react-canvas-draw/issues/143
-          // @ts-ignore: Unreachable code error
-          const url = canvasRef.current.getDataUrl('png', false, '#ffffff');
-          // problem: still thinks that methods doesn't exist, but I can see it in the source code...
-          window.open(url);
-        }}>
-        Download
-      </Button> */}
+      {telestrations ? (
+        <></>
+      ) : (
+        <Button
+          onClick={() => {
+            setSaveData(canvasRef.current.getSaveData());
+          }}>
+          Save
+        </Button>
+      )}
+      {telestrations ? (
+        <></>
+      ) : (
+        <Button
+          onClick={() => {
+            canvasRef.current.loadSaveData(saveData, true);
+          }}>
+          Load
+        </Button>
+      )}
+      {telestrations ? (
+        <></>
+      ) : (
+        <Button
+          onClick={() => {
+            const url = canvasRef.current.getDataURL('png', false, '#ffffff');
+            // from https://learnreactui.dev/contents/how-to-download-a-file-in-react
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'covey-town-drawing';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}>
+          Download
+        </Button>
+      )}
+      {telestrations ? (
+        <></>
+      ) : (
+        <Button
+          onClick={() => {
+            const url = canvasRef.current.getDataURL('png', false, '#ffffff');
+            console.log('send image to gallery not implemented');
+          }}>
+          Send to gallery
+        </Button>
+      )}
     </div>
   );
 }
