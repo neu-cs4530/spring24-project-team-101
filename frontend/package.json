@@ -50,7 +50,9 @@
     "twilio": "^3.84.1",
     "twilio-video": "^2.27.0",
     "typed-emitter": "^2.1.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "catenary-curve": "^1.0.1",
+    "lazy-brush": "^1.0.1"
   },
   "engines": {
     "node": "18.x.x",
