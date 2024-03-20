@@ -4,7 +4,7 @@ import TelestrationsGame from './TelestrationsGame';
 import {
   Drawing,
   GameMove,
-  TelestrationsGameState,
+  TelestrationsAction,
   TelestrationsMove,
 } from '../../types/CoveyTownSocket';
 import {
@@ -19,16 +19,27 @@ function startedGame(game: TelestrationsGame, players: Array<Player>): Telestrat
   return game;
 }
 
+function gamePhase(game: TelestrationsGame): TelestrationsAction {
+  if (game.state.gamePhase === 0) {
+    return 'PICK_WORD';
+  }
+  if (game.state.gamePhase % 2 !== 0) {
+    return 'DRAW';
+  }
+  return 'PICK_WORD';
+}
+
 function createMove(
   game: TelestrationsGame,
   player: Player,
   drawing?: Drawing,
   word?: string,
 ): GameMove<TelestrationsMove> {
+  const action = gamePhase(game);
   return {
     gameID: game.id,
     playerID: player.id,
-    move: { action: game.state.gamePhase, word, drawing },
+    move: { action, word, drawing },
   };
 }
 
@@ -55,7 +66,7 @@ describe('Telestrations Game', () => {
   let players: Array<Player>;
 
   beforeEach(() => {
-    game = new TelestrationsGame('state' as unknown as TelestrationsGameState);
+    game = new TelestrationsGame();
     players = [];
     for (let i = 0; i < 8; i++) {
       players.push(createPlayerForTesting());
@@ -196,7 +207,7 @@ describe('Telestrations Game', () => {
     });
     test('The first game phase after starting is picking a word', () => {
       startedGame(game, players);
-      expect(game.state.gamePhase).toBe('PICK_WORD');
+      expect(gamePhase(game)).toBe('PICK_WORD');
     });
   });
 
@@ -233,7 +244,7 @@ describe('Telestrations Game', () => {
         const threePlayers = players.slice(0, 3);
         startedGame(game, threePlayers);
         // This should take three rounds: Picking, Drawing, Guessing
-        expect(game.state.gamePhase).toBe('PICK_WORD');
+        expect(gamePhase(game)).toBe('PICK_WORD');
 
         expect(() =>
           game.applyMove(createMove(game, threePlayers[0], undefined, undefined)),
@@ -245,7 +256,7 @@ describe('Telestrations Game', () => {
         startedGame(game, threePlayers);
         // This should take three rounds: Picking, Drawing, Guessing
         threePlayers.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('DRAW');
+        expect(gamePhase(game)).toBe('DRAW');
 
         expect(() => game.applyMove(createMove(game, threePlayers[0], undefined))).toThrowError();
       });
@@ -256,7 +267,7 @@ describe('Telestrations Game', () => {
         // This should take three rounds: Picking, Drawing, Guessing
         threePlayers.forEach(player => applyArbitraryMove(game, player));
         threePlayers.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('GUESS');
+        expect(gamePhase(game)).toBe('GUESS');
 
         expect(() =>
           game.applyMove(createMove(game, threePlayers[0], undefined, undefined)),
@@ -268,19 +279,19 @@ describe('Telestrations Game', () => {
       it('should rotate drawings and guesses in the correct order', () => {
         startedGame(game, players);
 
-        expect(game.state.gamePhase).toBe('PICK_WORD');
+        expect(gamePhase(game)).toBe('PICK_WORD');
         players.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('DRAW');
+        expect(gamePhase(game)).toBe('DRAW');
         players.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('GUESS');
+        expect(gamePhase(game)).toBe('GUESS');
         players.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('DRAW');
+        expect(gamePhase(game)).toBe('DRAW');
         players.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('GUESS');
+        expect(gamePhase(game)).toBe('GUESS');
         players.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('DRAW');
+        expect(gamePhase(game)).toBe('DRAW');
         players.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('GUESS');
+        expect(gamePhase(game)).toBe('GUESS');
         players.forEach(player => applyArbitraryMove(game, player));
       });
 
@@ -288,11 +299,11 @@ describe('Telestrations Game', () => {
         const threePlayers = players.slice(0, 3);
         startedGame(game, threePlayers);
         // This should take three rounds: Picking, Drawing, Guessing
-        expect(game.state.gamePhase).toBe('PICK_WORD');
+        expect(gamePhase(game)).toBe('PICK_WORD');
         threePlayers.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('DRAW');
+        expect(gamePhase(game)).toBe('DRAW');
         threePlayers.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('GUESS');
+        expect(gamePhase(game)).toBe('GUESS');
         threePlayers.forEach(player => applyArbitraryMove(game, player));
 
         expect(game.state.status).toBe('OVER');
@@ -315,11 +326,11 @@ describe('Telestrations Game', () => {
         const threePlayers = players.slice(0, 3);
         startedGame(game, threePlayers);
         // This should take three rounds: Picking, Drawing, Guessing
-        expect(game.state.gamePhase).toBe('PICK_WORD');
+        expect(gamePhase(game)).toBe('PICK_WORD');
         threePlayers.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('DRAW');
+        expect(gamePhase(game)).toBe('DRAW');
         threePlayers.forEach(player => applyArbitraryMove(game, player));
-        expect(game.state.gamePhase).toBe('GUESS');
+        expect(gamePhase(game)).toBe('GUESS');
         threePlayers.forEach(player => applyArbitraryMove(game, player));
 
         // Player 1's chain:
@@ -341,10 +352,10 @@ describe('Telestrations Game', () => {
       test('if there are an even number of players, players draw their own word', () => {
         startedGame(game, players);
         expect(game.state.players.length % 2).toEqual(0);
-        expect(game.state.gamePhase).toBe('PICK_WORD');
+        expect(gamePhase(game)).toBe('PICK_WORD');
         // Every player picks a word equal to their id:
         players.forEach(player => game.applyMove(createMove(game, player, undefined, player.id)));
-        expect(game.state.gamePhase).toBe('DRAW');
+        expect(gamePhase(game)).toBe('DRAW');
         // have each player submit a drawing
         players.forEach(player =>
           game.applyMove(createMove(game, player, createDrawing(player), player.id)),
@@ -360,10 +371,10 @@ describe('Telestrations Game', () => {
       test('if there are an odd number of players, players do not draw their own word', () => {
         startedGame(game, players);
         expect(game.state.players.length % 2).toEqual(0);
-        expect(game.state.gamePhase).toBe('PICK_WORD');
+        expect(gamePhase(game)).toBe('PICK_WORD');
         // Every player picks a word equal to their id:
         players.forEach(player => game.applyMove(createMove(game, player, undefined, player.id)));
-        expect(game.state.gamePhase).toBe('DRAW');
+        expect(gamePhase(game)).toBe('DRAW');
         // have each player submit a drawing
         players.forEach(player =>
           game.applyMove(createMove(game, player, createDrawing(player), player.id)),
