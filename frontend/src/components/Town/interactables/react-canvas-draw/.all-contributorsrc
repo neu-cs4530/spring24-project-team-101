@@ -1,0 +1,43 @@
+{
+  "projectName": "react-canvas-draw",
+  "projectOwner": "embiem",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "contributors": [
+    {
+      "login": "embiem",
+      "name": "Martin Beierling-Mutz",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/3866457?v=4",
+      "profile": "https://embiem.me",
+      "contributions": [
+        "code",
+        "doc",
+        "example",
+        "ideas"
+      ]
+    },
+    {
+      "login": "dulnan",
+      "name": "Jan Hug",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/4155003?v=4",
+      "profile": "http://www.janhug.info",
+      "contributions": [
+        "ideas"
+      ]
+    },
+    {
+      "login": "ern-arrowsmith",
+      "name": "Ernie Arrowsmith",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/3596444?s=400&u=c4cc9bf80c5572d07c8f877635b785b3ab99eee7&v=4",
+      "profile": "https://www.linkedin.com/in/ernarrowsmith/",
+      "contributions": [
+        "ideas"
+      ]
+    }
+  ]
+}
