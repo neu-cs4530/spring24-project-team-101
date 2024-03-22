@@ -125,7 +125,7 @@ class Demo extends Component {
           This part got me most excited. Very easy to use saving and loading of
           drawings. It even comes with a customizable loading speed to control
           whether your drawing should load instantly (loadTimeOffset = 0) or
-          appear after some time (loadTimeOffset > 0){" "}
+          appear after some time (loadTimeOffset &gt; 0){" "}
           <span>{`<CanvasDraw loadTimeOffset={10} />`}</span>
         </p>
         <p>Try it out! Draw something, hit "Save" and then "Load".</p>
