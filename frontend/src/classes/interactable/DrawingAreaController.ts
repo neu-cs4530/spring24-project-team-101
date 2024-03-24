@@ -1,11 +1,10 @@
-import { InteractableCommand, Drawing } from '../../types/CoveyTownSocket';
+import { Drawing } from '../../types/CoveyTownSocket';
 import InteractableAreaController, {
   BaseInteractableEventMap,
   DRAWING_AREA_TYPE,
 } from './InteractableAreaController';
 import { DrawingArea as DrawingAreaModel } from '../../types/CoveyTownSocket';
 import { useState, useEffect } from 'react';
-import { NO_TOPIC_STRING } from './ConversationAreaController';
 
 export type DrawingEvents = BaseInteractableEventMap & {
   drawingChanged: (drawing: Drawing) => void;
@@ -47,6 +46,15 @@ class DrawingAreaController extends InteractableAreaController<DrawingEvents, Dr
 
   get drawing(): Drawing | undefined {
     return this._drawing;
+  }
+
+  set drawing(newDrawing: Drawing | undefined) {
+    if (this._drawing !== newDrawing) {
+      this.emit('drawingChangeD', newDrawing);
+      if (newDrawing !== undefined) this.emit('friendlyNameChange', newDrawing.drawingID);
+      else this.emit('friendlyNameChange', NO_DRAWING_STRING);
+    }
+    this._drawing = newDrawing;
   }
 
   public get type(): string {
