@@ -1,8 +1,6 @@
 import DrawingCanvas from './DrawingCanvas';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { randomBytes } from 'crypto';
-import React, { useRef } from 'react';
-import CanvasDraw from './react-canvas-draw/src';
+import React from 'react';
 
 describe('DrawingCanvas', () => {
   describe('can we render the component at all?', () => {

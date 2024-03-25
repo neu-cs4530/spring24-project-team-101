@@ -20,8 +20,7 @@ export default function DrawingCanvas({ telestrations = false }: DrawingCanvasPr
     lazyRadius: 0,
   });
   const canvasRef = useRef(canvas);
-  // @ts-ignore
-  const handleColorChange = ({ hex }) => setColor(hex);
+  const handleColorChange = ({ hex }: any) => setColor(hex);
 
   return (
     <div>
