@@ -13,7 +13,7 @@ export type DrawingEvents = BaseInteractableEventMap & {
 // The special string that will be displayed when a drawing area does not have a drawing set
 export const NO_DRAWING_STRING = '(No Drawing)';
 
-class DrawingAreaController extends InteractableAreaController<DrawingEvents, DrawingAreaModel> {
+ export default class DrawingAreaController extends InteractableAreaController<DrawingEvents, DrawingAreaModel> {
   protected _drawing;
 
   constructor(id: string, drawing?: Drawing) {
