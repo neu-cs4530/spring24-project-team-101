@@ -1,11 +1,7 @@
-import { Button, chakra, Container, useToast } from '@chakra-ui/react';
-import ConnectFourAreaController, {
-  ConnectFourCell,
-} from '../../../classes/interactable/ConnectFourAreaController';
+import { Button } from '@chakra-ui/react';
 import React, { useRef, useState } from 'react';
-import { ConnectFourColIndex } from '../../../types/CoveyTownSocket';
 import CanvasDraw from './react-canvas-draw/src/index';
-import { CirclePicker, CompactPicker, PhotoshopPicker } from 'react-color';
+import { CirclePicker } from 'react-color';
 
 export type DrawingCanvasProps = {
   telestrations?: boolean;
@@ -16,6 +12,7 @@ export default function DrawingCanvas({ telestrations = false }: DrawingCanvasPr
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
   const [saveData, setSaveData] = useState('');
+
   const canvas = new CanvasDraw({
     hideGrid: true,
     brushColor: color,

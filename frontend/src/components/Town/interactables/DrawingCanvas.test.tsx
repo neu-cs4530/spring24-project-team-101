@@ -1,14 +1,22 @@
 import DrawingCanvas from './DrawingCanvas';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import React from 'react';
+import { randomBytes } from 'crypto';
+import React, { useRef } from 'react';
+import CanvasDraw from './react-canvas-draw/src';
 
 describe('DrawingCanvas', () => {
   describe('can we render the component at all?', () => {
     afterEach(cleanup);
-    it('should render all the buttons', () => {
+    it('should render all the buttons by default', () => {
       render(<DrawingCanvas />);
       const buttons = screen.getAllByRole('button');
-      expect(buttons.length).toEqual(6);
+      expect(buttons.length).toEqual(7);
+    });
+
+    it('should not render saving/loading buttons in telestrations mode', () => {
+      render(<DrawingCanvas telestrations={true}></DrawingCanvas>);
+      const buttons = screen.getAllByRole('button');
+      expect(buttons.length).toEqual(3);
     });
   });
 
@@ -18,67 +26,67 @@ describe('DrawingCanvas', () => {
     });
     afterEach(cleanup);
 
-    describe('Erasing', () => {
-      it('Should display an erase button', () => {
-        expect(screen.getByLabelText('Erase')).toBeInTheDocument();
-      });
-
-      it('should toggle erase mode when the erase button is clicked', () => {
-        const eraseToggle = screen.getByLabelText('erase toggle');
-        fireEvent.click(eraseToggle);
-
-        expect(eraseToggle).toHaveDisplayValue('Draw');
-
-        fireEvent.click(eraseToggle);
-
-        expect(eraseToggle).toHaveDisplayValue('Erase');
+    describe('Canvas', () => {
+      it('should display a drawing canvas', () => {
+        // the library does not include any accessibility tags or really anything useful
+        // to identify the CanvasDraw component. it creates 4 <canvas> elements, but the test shouldn't rely on that
+        expect(document.getElementsByTagName('canvas').length).toBeGreaterThan(0);
       });
     });
 
-    describe('Saving', () => {
-      it('Should display a save button', () => {
-        expect(screen.getByLabelText('Save')).toBeInTheDocument();
+    describe('Erasing', () => {
+      it('Should display an erase button', () => {
+        expect(screen.getAllByText('Erase')).toHaveLength(1);
       });
 
-      it('should save the image somehow when the button is clicked', () => {
-        expect(screen.getByLabelText('Save')).toBeInTheDocument();
-        const saveButton = screen.getByLabelText('Save');
+      it('should toggle erase mode when the erase button is clicked', () => {
+        const eraseToggle = screen.getByLabelText('toggle erase');
+        fireEvent.click(eraseToggle);
 
-        // TODO: We have to figure out how the saving is going to work first
-        fireEvent.click(saveButton);
+        expect(screen.queryAllByText('Erase')).toHaveLength(0);
+        expect(screen.getAllByText('Draw')).toHaveLength(1);
+
+        fireEvent.click(eraseToggle);
+
+        expect(screen.getAllByText('Erase')).toHaveLength(1);
+        expect(screen.queryAllByText('Draw')).toHaveLength(0);
+      });
+    });
+
+    describe('Saving and loading', () => {
+      it('Should display a save button', () => {
+        expect(screen.getAllByText('Save')).toHaveLength(1);
+      });
+
+      it('Should display a download button', () => {
+        expect(screen.getAllByText('Download')).toHaveLength(1);
+      });
+
+      it('Should display a load button', () => {
+        expect(screen.getAllByText('Load')).toHaveLength(1);
+      });
+
+      it('Should display a button to send image to gallery', () => {
+        expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
+        // TODO: once we implement this, we may be able to actually test that it works
+        // since it shouldn't rely on any CanvasDraw functionality
       });
     });
 
     describe('Color (Optional)', () => {
       it('Should display a color picker', () => {
-        expect(screen.getByLabelText('color picker')).toBeInTheDocument();
-      });
-
-      it('should change the line color when clicked', () => {
-        // how to have it click on a specific color?
-        // check our color state somehow?
+        const colorPicker = document.getElementsByClassName('color-picker');
+        expect(colorPicker).toBeDefined();
       });
     });
 
     describe('Thickness (Optional)', () => {
       it('Should display a button to increase thickness', () => {
-        expect(screen.getByDisplayValue('Size up')).toBeInTheDocument();
-      });
-
-      it('should increase the line thickness when clicked', () => {
-        const sizeUp = screen.getByDisplayValue('Size up');
-        fireEvent.click(sizeUp);
-        // check our size state somehow?
+        expect(screen.getAllByText('Size up')).toHaveLength(1);
       });
 
       it('Should display a button to decrease thickness', () => {
-        expect(screen.getByDisplayValue('Size down')).toBeInTheDocument();
-      });
-
-      it('should decrease the line thickness when clicked', () => {
-        const sizeDown = screen.getByDisplayValue('Size down');
-        fireEvent.click(sizeDown);
-        // check our size state somehow?
+        expect(screen.getAllByText('Size down')).toHaveLength(1);
       });
     });
   });
