@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import React, { useRef, useState } from 'react';
 import CanvasDraw from './react-canvas-draw/src/index';
-import { CirclePicker } from 'react-color';
+import { CirclePicker, ColorResult } from 'react-color';
 
 export type DrawingCanvasProps = {
   telestrations?: boolean;
@@ -20,7 +20,7 @@ export default function DrawingCanvas({ telestrations = false }: DrawingCanvasPr
     lazyRadius: 0,
   });
   const canvasRef = useRef(canvas);
-  const handleColorChange = ({ hex }: any) => setColor(hex);
+  const handleColorChange = ({ hex }: ColorResult) => setColor(hex);
 
   return (
     <div>
