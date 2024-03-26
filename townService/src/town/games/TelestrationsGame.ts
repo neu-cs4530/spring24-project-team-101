@@ -16,20 +16,115 @@ import Game from './Game';
 
 const MINIMUM_PLAYERS = 2;
 
+/**
+ * A class to represent a game of Telestrations{TM}.
+ * @see https://en.wikipedia.org/wiki/Telestrations
+ */
 export default class TelestrationsGame extends Game<TelestrationsGameState, TelestrationsMove> {
   /**
    * Constructor for a new Telestrations game.
    * Initializes an empty game waiting for players.
+   *
+   * For now, no options. Perhaps MINIMUM_PLAYERS should be supplied here?
    */
   public constructor() {
     super({
       status: 'WAITING_FOR_PLAYERS',
       players: [],
       playersReady: [],
-      activeChains: [],
-      chains: [[]],
+      activeChains: [], // initialized at `startGame`
+      chains: [[]], // initialized at `startGame
       gamePhase: 0,
     });
+  }
+
+  /**
+   * Registers a player for the game.
+   * Places them at the end of list of players.
+   * i.e. they will follow the previously-joined player.
+   *
+   * @throws InvalidParametersError if the player is already in the game (PLAYER_ALREADY_IN_GAME_MESSAGE)
+   * @throws InvalidParametersError if the game is full (GAME_FULL_MESSAGE)
+   *
+   * @param player the player
+   */
+  protected _join(player: Player): void {
+    if (this._inGame(player)) {
+      throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
+    }
+    this.state = {
+      ...this.state,
+      players: this.state.players.concat(player.id),
+    };
+    if (
+      this.state.status === 'WAITING_FOR_PLAYERS' &&
+      this.state.players.length >= MINIMUM_PLAYERS
+    ) {
+      this.state = {
+        ...this.state,
+        status: 'WAITING_TO_START',
+      };
+    }
+  }
+
+  /**
+   * Removes a player from the game.
+   * Updates the game's state to reflect the player leaving.
+   *
+   * If the game state is currently "IN_PROGRESS", updates the game's status to OVER.
+   * If the game state is currently "WAITING_TO_START", updates the game's status to WAITING_FOR_PLAYERS.
+   * If the game state is currently "WAITING_FOR_PLAYERS" or "OVER", the game state is unchanged.
+   *
+   * Note that this function can start the game!
+   * If all players but one are ready, and that player leaves, the game will start.
+   *
+   * @throws InvalidParametersError if the player is not in the game (PLAYER_NOT_IN_GAME_MESSAGE)
+   *
+   * @param player The player to remove from the game
+   */
+  protected _leave(player: Player): void {
+    if (!this._inGame(player)) {
+      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    }
+    if (this.state.status === 'WAITING_TO_START') {
+      this._removePlayer(player);
+      this._startGame();
+    } else if (this.state.status === 'IN_PROGRESS') {
+      this.state = {
+        ...this.state,
+        status: 'OVER',
+      };
+    }
+  }
+
+  /**
+   * Indicates that a player is ready to start the game.
+   * Updates the game state to indicate that the player is ready to start the game.
+   *
+   * If all players are ready, and there are more than `MINIMUM_PLAYERS`, the game will start.
+   *
+   * The first phase is always PICK_WORD.
+   * - If there are an even number of players, they all draw their own word.
+   * - If there are an odd number of players, they all draw another player's word.
+   *
+   * @throws InvalidParametersError if the player is not in the game (PLAYER_NOT_IN_GAME_MESSAGE)
+   *
+   * @param player The player who is ready to start the game
+   */
+  public startGame(player: Player): void {
+    if (!this._inGame(player)) {
+      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    }
+
+    // Set the player to `ready`
+    if (!this.state.playersReady.includes(player.id)) {
+      this.state = {
+        ...this.state,
+        playersReady: this.state.playersReady.concat(player.id),
+      };
+    }
+
+    this._startGame();
   }
 
   /** Applies a move to the game.
@@ -75,6 +170,12 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
     }
   }
 
+  /**
+   * Helper for `applyMove`.
+   * 1) Checks if the move is valid
+   * 2) Appends the move to the current player's chain
+   * 3) Updates state.
+   */
   private _processMove(move: GameMove<TelestrationsMove>): void {
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
@@ -88,83 +189,43 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
       (this._gamePhase() === 'DRAW' && !move.move.drawing)
     ) {
       throw new InvalidParametersError(INVALID_MOVE_MESSAGE);
-    } else {
-      // 1) Lookup the id in this.state.players
-      // 2) Update that entry in this.state.chains
-
-      const chains = this.state.chains.map((chain, index) => {
-        if (index === this._currentChain(move.playerID)) {
-          return chain.concat(move.move);
-        }
-        return chain;
-      });
-
-      this.state = {
-        ...this.state,
-        chains,
-      };
     }
+
+    const chains = this.state.chains.map((chain, index) => {
+      if (index === this._currentChain(move.playerID)) {
+        return chain.concat(move.move);
+      }
+      return chain;
+    });
+
+    this.state = {
+      ...this.state,
+      chains,
+    };
   }
 
+  /**
+   * "Rotates" the contents of the given array by
+   * moving the first element to the end.
+   *
+   * e.g. [A, B, C, D] ==> [B, C, D, A] ==> [C, D, A, B] ==> ...
+   */
   private _rotate(arr: readonly number[]): number[] {
     return arr.slice(1).concat(arr[0]);
   }
 
-  protected _join(player: Player): void {
-    if (this._inGame(player)) {
-      throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
-    }
-    this.state = {
-      ...this.state,
-      players: this.state.players.concat(player.id),
-    };
-    if (
-      this.state.status === 'WAITING_FOR_PLAYERS' &&
-      this.state.players.length >= MINIMUM_PLAYERS
-    ) {
-      this.state = {
-        ...this.state,
-        status: 'WAITING_TO_START',
-      };
-    }
-  }
-
-  protected _leave(player: Player): void {
-    if (!this._inGame(player)) {
-      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
-    }
-    if (this.state.status === 'WAITING_TO_START') {
-      this._removePlayer(player);
-      this._startGame();
-    } else if (this.state.status === 'IN_PROGRESS') {
-      this.state = {
-        ...this.state,
-        status: 'OVER',
-      };
-    }
-  }
-
-  public startGame(player: Player): void {
-    if (!this._inGame(player)) {
-      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
-    }
-
-    // Set the player to `ready`
-    if (!this.state.playersReady.includes(player.id)) {
-      this.state = {
-        ...this.state,
-        playersReady: this.state.playersReady.concat(player.id),
-      };
-    }
-
-    this._startGame();
-  }
-
+  /**
+   * Helper for `_startGame`.
+   * @returns truthy if there are enough players, and they are all ready.
+   */
   private _canStart(): boolean {
     const playersInGame = this.state.players.length;
-    return playersInGame >= 2 && playersInGame === this.state.playersReady.length;
+    return playersInGame >= MINIMUM_PLAYERS && playersInGame === this.state.playersReady.length;
   }
 
+  /**
+   * Handles the logic for starting a game, by initializing the game state.
+   */
   private _startGame(): void {
     if (this._canStart()) {
       this.state = {
@@ -181,6 +242,10 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
     }
   }
 
+  /**
+   * Converts from the _number_ of game phases to the _type_ of game phase.
+   * @returns the current game phase
+   */
   private _gamePhase(): TelestrationsAction {
     if (this.state.gamePhase === 0) {
       return 'PICK_WORD';
@@ -191,12 +256,22 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
     return 'GUESS';
   }
 
+  /**
+   * Helper for `_processMove`.
+   * Determines if a move's author has already contributed this round.
+   * @param move the move to check validity
+   */
   private _checkNoPriorMove(move: GameMove<TelestrationsMove>) {
     if (this.state.chains[this._currentChain(move.playerID)].length > this.state.gamePhase) {
       throw new InvalidParametersError('Already made move this round!');
     }
   }
 
+  /**
+   * Retrieves the index of the chain to which the player should contribute this round.
+   * @param playerID the player's ID
+   * @returns the index of the player's active chain
+   */
   private _currentChain(playerID: PlayerID): number {
     const playerNumber = this.state.players.findIndex(player => player === playerID);
     return this.state.activeChains[playerNumber];
