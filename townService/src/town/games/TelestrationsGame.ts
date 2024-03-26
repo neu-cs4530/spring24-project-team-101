@@ -7,11 +7,14 @@ import InvalidParametersError, {
 import Player from '../../lib/Player';
 import {
   GameMove,
+  PlayerID,
   TelestrationsAction,
   TelestrationsGameState,
   TelestrationsMove,
 } from '../../types/CoveyTownSocket';
 import Game from './Game';
+
+const MINIMUM_PLAYERS = 2;
 
 export default class TelestrationsGame extends Game<TelestrationsGameState, TelestrationsMove> {
   /**
@@ -24,7 +27,7 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
       players: [],
       playersReady: [],
       activeChains: [],
-      chains: [],
+      chains: [[]],
       gamePhase: 0,
     });
   }
@@ -46,87 +49,41 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
   public applyMove(move: GameMove<TelestrationsMove>): void {
     this._processMove(move);
 
+    // If every player has made a move:
     if (this.state.chains.every(chain => chain.length === this.state.gamePhase + 1)) {
       const activeChains =
+        // Don't rotate on the first round for even players, otherwise we always rotate.
         this.state.players.length % 2 === 0 && this.state.gamePhase === 0
-          ? this._rotate(this.state.activeChains)
-          : this.state.activeChains;
-      this.state = {
-        ...this.state,
-        gamePhase: this.state.gamePhase + 1,
-        activeChains,
-      };
-    }
-  }
+          ? this.state.activeChains
+          : this._rotate(this.state.activeChains);
 
-  private _rotate(arr: readonly number[]): number[] {
-    return arr.slice(1).concat(arr[0]);
-  }
-
-  protected _join(player: Player): void {
-    if (this.state.players.includes(player.id)) {
-      throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
+      // If every player has contributed to every row, the game should end.
+      // In other words, we end when `chains` is a square matrix.
+      if (this.state.chains.every(chain => chain.length === this.state.chains.length)) {
+        this.state = {
+          ...this.state,
+          status: 'OVER',
+        };
+      } else {
+        // Continue to the next phase.
+        this.state = {
+          ...this.state,
+          gamePhase: this.state.gamePhase + 1,
+          activeChains,
+        };
+      }
     }
-    this.state = {
-      ...this.state,
-      players: this.state.players.concat(player.id),
-    };
-  }
-
-  protected _leave(player: Player): void {
-    if (!this.state.players.includes(player.id)) {
-      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
-    }
-    if (this.state.status === 'WAITING_TO_START') {
-      this.state = {
-        ...this.state,
-        players: this.state.players.filter(inGame => inGame !== player.id),
-        playersReady: this.state.players.filter(inGame => inGame !== player.id),
-      };
-      this._startGame();
-    } else if (this.state.status === 'IN_PROGRESS') {
-      this.state = {
-        ...this.state,
-        status: 'OVER',
-      };
-    }
-  }
-
-  private _canStart(): boolean {
-    const playersInGame = this.state.players.length;
-    return playersInGame >= 2 && playersInGame === this.state.playersReady.length;
-  }
-
-  private _startGame(): void {
-    if (this._canStart()) {
-      this.state = {
-        ...this.state,
-        activeChains: new Array<number>(this.state.players.length).map((p, index) => index),
-        status: 'IN_PROGRESS',
-      };
-    }
-  }
-
-  public startGame(player: Player): void {
-    if (!this.state.players.includes(player.id)) {
-      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
-    }
-    if (!this.state.playersReady.includes(player.id)) {
-      this.state = {
-        ...this.state,
-        playersReady: this.state.playersReady.concat(player.id),
-      };
-    }
-
-    this._startGame();
   }
 
   private _processMove(move: GameMove<TelestrationsMove>): void {
-    this._checkNoPriorMove(move);
     if (this.state.status !== 'IN_PROGRESS') {
       throw new InvalidParametersError(GAME_NOT_IN_PROGRESS_MESSAGE);
     }
+    this._checkNoPriorMove(move);
+
     if (
+      // If it's a guess or a pick_word, the move must have a word.
+      // If it's a draw round, the move must have a drawing.
       ((this._gamePhase() === 'GUESS' || this._gamePhase() === 'PICK_WORD') && !move.move.word) ||
       (this._gamePhase() === 'DRAW' && !move.move.drawing)
     ) {
@@ -135,10 +92,8 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
       // 1) Lookup the id in this.state.players
       // 2) Update that entry in this.state.chains
 
-      const playerNumber = this._players.findIndex(player => player.id === move.playerID);
-      const currentChain = this.state.activeChains[playerNumber];
       const chains = this.state.chains.map((chain, index) => {
-        if (index === currentChain) {
+        if (index === this._currentChain(move.playerID)) {
           return chain.concat(move.move);
         }
         return chain;
@@ -151,6 +106,81 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
     }
   }
 
+  private _rotate(arr: readonly number[]): number[] {
+    return arr.slice(1).concat(arr[0]);
+  }
+
+  protected _join(player: Player): void {
+    if (this._inGame(player)) {
+      throw new InvalidParametersError(PLAYER_ALREADY_IN_GAME_MESSAGE);
+    }
+    this.state = {
+      ...this.state,
+      players: this.state.players.concat(player.id),
+    };
+    if (
+      this.state.status === 'WAITING_FOR_PLAYERS' &&
+      this.state.players.length >= MINIMUM_PLAYERS
+    ) {
+      this.state = {
+        ...this.state,
+        status: 'WAITING_TO_START',
+      };
+    }
+  }
+
+  protected _leave(player: Player): void {
+    if (!this._inGame(player)) {
+      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    }
+    if (this.state.status === 'WAITING_TO_START') {
+      this._removePlayer(player);
+      this._startGame();
+    } else if (this.state.status === 'IN_PROGRESS') {
+      this.state = {
+        ...this.state,
+        status: 'OVER',
+      };
+    }
+  }
+
+  public startGame(player: Player): void {
+    if (!this._inGame(player)) {
+      throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
+    }
+
+    // Set the player to `ready`
+    if (!this.state.playersReady.includes(player.id)) {
+      this.state = {
+        ...this.state,
+        playersReady: this.state.playersReady.concat(player.id),
+      };
+    }
+
+    this._startGame();
+  }
+
+  private _canStart(): boolean {
+    const playersInGame = this.state.players.length;
+    return playersInGame >= 2 && playersInGame === this.state.playersReady.length;
+  }
+
+  private _startGame(): void {
+    if (this._canStart()) {
+      this.state = {
+        ...this.state,
+        // One empty list for each player
+        chains: this.state.players.map(p => []),
+        // For the first turn (picking a word), `activeChains[n]` === `n`
+        // Note that filling the area first is necessary!
+        // ¯\_(ツ)_/¯
+        // this took me 2 hours to find.
+        activeChains: new Array<number>(this.state.players.length).fill(0).map((p, index) => index),
+        status: 'IN_PROGRESS',
+      };
+    }
+  }
+
   private _gamePhase(): TelestrationsAction {
     if (this.state.gamePhase === 0) {
       return 'PICK_WORD';
@@ -158,13 +188,37 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
     if (this.state.gamePhase % 2 !== 0) {
       return 'DRAW';
     }
-    return 'PICK_WORD';
+    return 'GUESS';
   }
 
   private _checkNoPriorMove(move: GameMove<TelestrationsMove>) {
-    const playerNumber = this._players.findIndex(player => player.id === move.playerID);
-    if (this.state.chains[playerNumber].length !== this.state.gamePhase) {
+    if (this.state.chains[this._currentChain(move.playerID)].length > this.state.gamePhase) {
       throw new InvalidParametersError('Already made move this round!');
     }
+  }
+
+  private _currentChain(playerID: PlayerID): number {
+    const playerNumber = this.state.players.findIndex(player => player === playerID);
+    return this.state.activeChains[playerNumber];
+  }
+
+  /**
+   * Is the given player in the current game?
+   * @param player the player
+   */
+  private _inGame(player: Player): boolean {
+    return this.state.players.includes(player.id);
+  }
+
+  /**
+   * Removes a given player from the game state.
+   * @param player the player
+   */
+  private _removePlayer(player: Player): void {
+    this.state = {
+      ...this.state,
+      players: this.state.players.filter(playerInGame => playerInGame !== player.id),
+      playersReady: this.state.playersReady.filter(playerInGame => playerInGame !== player.id),
+    };
   }
 }

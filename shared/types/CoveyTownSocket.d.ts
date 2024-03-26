@@ -315,10 +315,12 @@ export interface TelestrationsGameState extends GameState {
   playersReady: ReadonlyArray<PlayerID>,
   // the number of phases of the game so far.
   gamePhase: number,
+  // `activeChains[n] = i` means that player `n` should is currently
+  // contributing to `chains[i]`.
+  activeChains: ReadonlyArray<number>,
   // Should we have a set number of players needed to start?
   // Should only one player get to start the game?
   // TODO
-  activeChains: ReadonlyArray<number>,
 }
 
 /**

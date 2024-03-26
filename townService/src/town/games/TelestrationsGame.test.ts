@@ -13,6 +13,8 @@ import {
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 
+// jest.mock('./TelestrationsGame');
+
 function startedGame(game: TelestrationsGame, players: Array<Player>): TelestrationsGame {
   players.forEach(p => game.join(p));
   players.forEach(p => game.startGame(p));
@@ -26,7 +28,7 @@ function gamePhase(game: TelestrationsGame): TelestrationsAction {
   if (game.state.gamePhase % 2 !== 0) {
     return 'DRAW';
   }
-  return 'PICK_WORD';
+  return 'GUESS';
 }
 
 function createMove(
@@ -83,12 +85,35 @@ describe('Telestrations Game', () => {
       game.join(player1);
       expect(game.state.players[game.state.players.length - 1]).toBe(player1.id);
     });
+    test('if there are fewer than two players in the game, the game status is set to WAITING_FOR_PLAYERS', () => {
+      expect(game.state.players.length).toEqual(0);
+      expect(game.state.status).toBe('WAITING_FOR_PLAYERS');
+      game.join(players[0]);
+      expect(game.state.players.length).toEqual(1);
+      expect(game.state.status).toBe('WAITING_FOR_PLAYERS');
+      game.join(players[1]);
+      expect(game.state.players.length).toEqual(2);
+      expect(game.state.status).not.toBe('WAITING_FOR_PLAYERS');
+    });
+    test('if there are two or more players in the game, the game status is set to WAITING_TO_START', () => {
+      game.join(players[0]);
+      expect(game.state.players.length).toEqual(1);
+      expect(game.state.status).toBe('WAITING_FOR_PLAYERS');
+      game.join(players[1]);
+      expect(game.state.players.length).toEqual(2);
+      expect(game.state.status).toBe('WAITING_TO_START');
+
+      for (const player of players.slice(2)) {
+        game.join(player);
+        expect(game.state.status).toBe('WAITING_TO_START');
+      }
+    });
   });
 
   describe('Leave', () => {
     it('should throw an error if the player is not in the game', () => {
       const player1 = createPlayerForTesting();
-      expect(() => game.leave(player1)).toThrowError('Player not in game');
+      expect(() => game.leave(player1)).toThrowError(PLAYER_NOT_IN_GAME_MESSAGE);
     });
     test('if the game is in progress and any player leaves, the game ends', () => {
       const player1 = createPlayerForTesting();
@@ -99,6 +124,7 @@ describe('Telestrations Game', () => {
       game.startGame(player2);
       game.leave(player1);
       // expect game status to be over
+      expect(game.state.status).toBe('OVER');
     });
     test('if the game is over and the player leaves, the state is not updated', () => {
       const player1 = players[0];
@@ -128,8 +154,10 @@ describe('Telestrations Game', () => {
       expect(game.state.playersReady).not.toContain(players[0]);
       players.slice(1).forEach(p => expect(game.state.playersReady).toContain(p.id));
 
-      for (const player of players) {
+      expect(game.state.status).toBe('WAITING_TO_START');
+      for (const player of players.slice(1)) {
         game.leave(player);
+        expect(game.state.players).not.toContain(player.id);
         expect(game.state.playersReady).not.toContain(player.id);
       }
     });
@@ -151,7 +179,7 @@ describe('Telestrations Game', () => {
         game.leave(players[i]);
         expect(game.state.playersReady).not.toContain(players[i].id);
         // For each remaining player...
-        for (let j = i; j < players.length; j++) {
+        for (let j = i + 1; j < players.length; j++) {
           // make sure they're still ready.
           expect(game.state.playersReady).toContain(players[j].id);
         }
@@ -159,7 +187,11 @@ describe('Telestrations Game', () => {
     });
 
     test('if the game is WAITING_TO_START and the only unready player leaves and there are two or more players, the game starts', () => {
-      players.slice(1).forEach(p => game.join(p));
+      game.join(players[0]);
+      players.slice(1).forEach(p => {
+        game.join(p);
+        game.startGame(p);
+      });
       // All players except 1 are ready:
       expect(game.state.playersReady).not.toContain(players[0].id);
       players.slice(1).forEach(p => expect(game.state.playersReady).toContain(p.id));
@@ -168,29 +200,30 @@ describe('Telestrations Game', () => {
 
       // Remove player 1
       game.leave(players[0]);
+      expect(game.state.players).not.toContain(players[0].id);
       // All players are ready:
-      players.forEach(p => expect(game.state.playersReady).toContain(p.id));
+      players.slice(1).forEach(p => expect(game.state.playersReady).toContain(p.id));
       expect(game.state.status).toBe('IN_PROGRESS');
     });
   });
 
   describe('StartGame', () => {
     it('should throw an error if the player is not in the game', () => {
-      expect(() => game.join(players[0])).toThrowError(PLAYER_NOT_IN_GAME_MESSAGE);
+      expect(() => game.startGame(players[0])).toThrowError(PLAYER_NOT_IN_GAME_MESSAGE);
     });
     it('only starts the game if there are two or more ready players', () => {
       game.join(players[0]);
-      expect(game.state.status).toBe('WAITING_TO_START'); // This may end up being WAITING_FOR_PLAYERS...
+      expect(game.state.status).toBe('WAITING_FOR_PLAYERS');
       game.startGame(players[0]);
-      expect(game.state.status).toBe('WAITING_TO_START');
+      expect(game.state.status).toBe('WAITING_FOR_PLAYERS');
       game.join(players[1]);
       expect(game.state.status).toBe('WAITING_TO_START');
     });
     it('starts the game when all two or more players are ready', () => {
       game.join(players[0]);
-      expect(game.state.status).toBe('WAITING_TO_START'); // This may end up being WAITING_FOR_PLAYERS...
+      expect(game.state.status).toBe('WAITING_FOR_PLAYERS');
       game.startGame(players[0]);
-      expect(game.state.status).toBe('WAITING_TO_START');
+      expect(game.state.status).toBe('WAITING_FOR_PLAYERS');
       game.join(players[1]);
       expect(game.state.status).toBe('WAITING_TO_START');
       game.startGame(players[1]);
@@ -231,8 +264,10 @@ describe('Telestrations Game', () => {
       it('should throw an error if the game is OVER', () => {
         const threePlayers = players.slice(0, 3);
         startedGame(game, threePlayers);
+        expect(game.state.gamePhase).toEqual(0);
         // This should take three rounds: Picking, Drawing, Guessing
         threePlayers.forEach(player => applyArbitraryMove(game, player));
+        expect(game.state.gamePhase).toEqual(1);
         threePlayers.forEach(player => applyArbitraryMove(game, player));
         threePlayers.forEach(player => applyArbitraryMove(game, player));
 
@@ -272,6 +307,11 @@ describe('Telestrations Game', () => {
         expect(() =>
           game.applyMove(createMove(game, threePlayers[0], undefined, undefined)),
         ).toThrowError();
+      });
+      it('should throw an error if a player tries to make a move twice in the same phase', () => {
+        startedGame(game, players);
+        applyArbitraryMove(game, players[0]);
+        expect(() => applyArbitraryMove(game, players[0])).toThrowError();
       });
     });
 
@@ -341,12 +381,12 @@ describe('Telestrations Game', () => {
         // Player 2's chain:
         expect(game.state.chains[1][0].word).toBe(threePlayers[1].id);
         expect(game.state.chains[1][1].drawing?.authorID).toBe(threePlayers[0].id);
-        expect(game.state.chains[1][2].word).toBe(threePlayers[3].id);
+        expect(game.state.chains[1][2].word).toBe(threePlayers[2].id);
 
         // Player 3's chain:
-        expect(game.state.chains[1][0].word).toBe(threePlayers[2].id);
-        expect(game.state.chains[1][1].drawing?.authorID).toBe(threePlayers[1].id);
-        expect(game.state.chains[1][2].word).toBe(threePlayers[0].id);
+        expect(game.state.chains[2][0].word).toBe(threePlayers[2].id);
+        expect(game.state.chains[2][1].drawing?.authorID).toBe(threePlayers[1].id);
+        expect(game.state.chains[2][2].word).toBe(threePlayers[0].id);
       });
 
       test('if there are an even number of players, players draw their own word', () => {
@@ -364,7 +404,7 @@ describe('Telestrations Game', () => {
         game.state.chains.forEach(chain => {
           const word = chain[0];
           const draw = chain[1];
-          expect(word).toEqual(draw.drawing?.authorID);
+          expect(word.word).toEqual(draw.drawing?.authorID);
         });
       });
 
