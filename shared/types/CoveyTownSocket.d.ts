@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: TypedInteractable[];
 }
 
-export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea';
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'DrawingArea';
 export interface Interactable {
   type: InteractableType;
   id: InteractableID;
@@ -72,6 +72,10 @@ export interface ViewingArea extends Interactable {
   video?: string;
   isPlaying: boolean;
   elapsedTimeSec: number;
+}
+
+export interface DrawingArea extends Interactable {
+  drawing?: Drawing;
 }
 
 export type GameStatus = 'IN_PROGRESS' | 'WAITING_TO_START' | 'OVER' | 'WAITING_FOR_PLAYERS';
@@ -216,7 +220,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand;
+export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand | SaveDrawingCommand | ExitDrawingCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -231,6 +235,16 @@ export interface LeaveGameCommand {
 export interface StartGameCommand {
   type: 'StartGame';
   gameID: GameInstanceID;
+}
+
+export interface SaveDrawingCommand {
+  type: 'SaveDrawing';
+  drawing: Drawing;
+}
+
+export interface ExitDrawingCommand {
+  type: 'ExitDrawing';
+  drawing: Drawing;
 }
 export interface GameMoveCommand<MoveType> {
   type: 'GameMove';
@@ -271,6 +285,8 @@ export interface ClientToServerEvents {
 }
 
 export type Drawing = {
+  exit(): unknown;
+  save(): unknown;
   drawingID: string,
   authorID: string,
   /**
@@ -301,40 +317,5 @@ export type Drawing = {
    *  It will cause issues if we have different procedures across the project.
    * 
    */
-  userDrawing: string,
+  userDrawing: string
 }
-
-export interface TelestrationsGameState extends GameState {
-  // The players in gameplay order.
-  players: ReadonlyArray<PlayerID>,
-  // The drawings and guesses in this game.
-  // `chains[n]` is an alternating array of words and drawings
-  // starting with the word picked by the `n`th player.
-  chains: ReadonlyArray<ReadonlyArray<TelestrationsMove>>,
-  // Whether each player is ready to start the game
-  playersReady: ReadonlyArray<PlayerID>,
-  // the number of phases of the game so far.
-  gamePhase: number,
-  // `activeChains[n] = i` means that player `n` should is currently
-  // contributing to `chains[i]`.
-  activeChains: ReadonlyArray<number>,
-  // Should we have a set number of players needed to start?
-  // Should only one player get to start the game?
-  // TODO
-}
-
-/**
- * Type for a move in Telestrations
- * Specifies the type of the action.
- * If `action` is 'PICK_WORD', then `word` is the word.
- * If `action` is 'GUESS', then `word` is the guess.
- * If `action` is 'DRAW', `word` is ignored and `drawing` is populated.
- * Otherwise, `drawing` is ignored.
- */
-export type TelestrationsMove = {
-  action: TelestrationsAction,
-  word?: string,
-  drawing?: Drawing,
-}
-
-export type TelestrationsAction = 'PICK_WORD' | 'DRAW' | 'GUESS';

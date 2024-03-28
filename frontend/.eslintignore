@@ -2,4 +2,3 @@ src/components/VideoCall/VideoFrontend
 src/classes/DebugLogger.ts
 build
 public/virtualbackground
-src/components/Town/interactables/react-canvas-draw/
