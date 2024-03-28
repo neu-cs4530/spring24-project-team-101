@@ -1,3 +1,4 @@
+import React from 'react';
 import DrawingCanvas from './DrawingCanvas';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { InteractableID } from '../../../types/CoveyTownSocket';
