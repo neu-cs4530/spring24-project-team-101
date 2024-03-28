@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import { unknown } from 'zod';
 import { createPlayerForTesting } from '../../TestUtils';
 import TelestrationsGame from './TelestrationsGame';
 import {
@@ -47,6 +48,8 @@ function createMove(
 
 function createDrawing(player: Player): Drawing {
   return {
+    exit: unknown,
+    save: unknown,
     drawingID: nanoid(),
     authorID: player.id,
     length: 1,
