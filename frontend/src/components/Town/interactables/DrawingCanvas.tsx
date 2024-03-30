@@ -2,12 +2,16 @@ import { Button } from '@chakra-ui/react';
 import React, { useRef, useState } from 'react';
 import CanvasDraw from './react-canvas-draw/src/index';
 import { CirclePicker, ColorResult } from 'react-color';
+import InteractableAreaController from '../../../classes/interactable/InteractableAreaController';
+import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 
 export type DrawingCanvasProps = {
+  drawingAreaController?: DrawingAreaController;
+  telestrationsAreaController?: TelestrationsAreaController;
   telestrations?: boolean;
 };
 
-export default function DrawingCanvas({ telestrations = false }: DrawingCanvasProps): JSX.Element {
+export default function DrawingCanvas({drawingAreaController = undefined, telestrationsAreaController= undefined,  telestrations = false }: DrawingCanvasProps): JSX.Element {
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
