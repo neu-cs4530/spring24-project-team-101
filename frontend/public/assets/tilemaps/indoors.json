@@ -625,15 +625,9 @@
                 {
                  "height":68.1289464938517,
                  "id":53,
-                 "name":"Drawing Area",
-                 "properties":[
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"ConnectFour"
-                        }],
+                 "name":"Drawing",
                  "rotation":0,
-                 "type":"GameArea",
+                 "type":"DrawingArea",
                  "visible":true,
                  "width":73.9448321701557,
                  "x":3074.11100033234,

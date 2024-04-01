@@ -43,6 +43,8 @@ import InteractableAreaController, {
 import TicTacToeAreaController from './interactable/TicTacToeAreaController';
 import ViewingAreaController from './interactable/ViewingAreaController';
 import PlayerController from './PlayerController';
+import DrawingArea from '../components/Town/interactables/DrawingArea';
+import DrawingAreaController from './interactable/DrawingAreaController';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY_MS = 300;
 const SOCKET_COMMAND_TIMEOUT_MS = 5000;
@@ -337,6 +339,13 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       eachInteractable => eachInteractable instanceof GameAreaController,
     );
     return ret as GameAreaController<GameState, GameEventTypes>[];
+  }
+
+  public get drawingAreas() {
+    const ret = this._interactableControllers.filter(
+      eachInteractable => eachInteractable instanceof DrawingAreaController,
+    );
+    return ret as DrawingAreaController[];
   }
 
   /**
@@ -823,7 +832,11 @@ export function useActiveInteractableAreas(): GenericInteractableAreaController[
   const townController = useTownController();
   const [interactableAreas, setInteractableAreas] = useState<GenericInteractableAreaController[]>(
     (townController.gameAreas as GenericInteractableAreaController[])
-      .concat(townController.conversationAreas, townController.viewingAreas)
+      .concat(
+        townController.conversationAreas,
+        townController.viewingAreas,
+        townController.drawingAreas,
+      )
       .filter(eachArea => eachArea.isActive()),
   );
   useEffect(() => {
@@ -831,6 +844,7 @@ export function useActiveInteractableAreas(): GenericInteractableAreaController[
       const allAreas = (townController.gameAreas as GenericInteractableAreaController[]).concat(
         townController.conversationAreas,
         townController.viewingAreas,
+        townController.drawingAreas,
       );
       setInteractableAreas(allAreas.filter(eachArea => eachArea.isActive()));
     };
@@ -862,7 +876,11 @@ export function useActiveInteractableAreasSortedByOccupancyAndName(): GenericInt
 
   const [interactableAreas, setInteractableAreas] = useState<InteractableAreaReadAheadOccupancy[]>(
     (townController.gameAreas as GenericInteractableAreaController[])
-      .concat(townController.conversationAreas, townController.viewingAreas)
+      .concat(
+        townController.conversationAreas,
+        townController.viewingAreas,
+        townController.drawingAreas,
+      )
       .filter(eachArea => eachArea.isActive())
       .map(area => ({ area, occupancy: area.occupants.length })),
   );
@@ -884,6 +902,7 @@ export function useActiveInteractableAreasSortedByOccupancyAndName(): GenericInt
       const allAreas = (townController.gameAreas as GenericInteractableAreaController[]).concat(
         townController.conversationAreas,
         townController.viewingAreas,
+        townController.drawingAreas,
       );
       const activeAreas = allAreas.filter(eachArea => eachArea.isActive());
       // Update the areas, *and* the occupancy listeners by comparing the new set of areas to the old set
