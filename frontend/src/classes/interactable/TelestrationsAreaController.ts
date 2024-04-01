@@ -27,8 +27,11 @@ export default class TelestrationsAreaController extends GameAreaController<
         if (newModel.game) {
             this._model.game?.state.chains.forEach((chain, index) => {
                 this._chains[index] = [... 
-                    chain];
-            }
+                    chain]
+            })
+        }
+        else {
+            this._chains = [[]];
         }
     }
 
