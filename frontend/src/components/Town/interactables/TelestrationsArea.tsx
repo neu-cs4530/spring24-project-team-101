@@ -5,6 +5,7 @@ import useTownController from "../../../hooks/useTownController";
 import { GameStatus, InteractableID, TelestrationsAction } from "../../../types/CoveyTownSocket";
 import { Button, Input, List, ListItem, toast, useToast, Image } from "@chakra-ui/react";
 import DrawingCanvas from "./DrawingCanvas";
+import TelestrationsAreaController from "../../../classes/interactable/TelestrationsAreaController";
 
 export default function ConnectFourArea({
     interactableID,
@@ -47,10 +48,9 @@ export default function ConnectFourArea({
         gameStatusText = (
           <>
             Game in progress, currently{' '}
-            {gameAreaController.whoseTurn === townController.ourPlayer
-              ? 'your'
-              : gameAreaController.whoseTurn?.userName + "'s"}{' '}
-            turn
+            {gameAreaController.isOurTurn
+              ? 'your turn'
+              : "you have already submitted"}
           </>
         );
       }
@@ -109,13 +109,13 @@ export default function ConnectFourArea({
         );
       }
       let currentPhaseComponent = <></>;
-      if (gameAreaController.whoseTurn !== townController.ourPlayer) {
-        currentPhaseComponent = <>... not your turn</>
+      if (!gameAreaController.isOurTurn) {
+        currentPhaseComponent = <>... already submitted</>
       }
       else if (gamePhase === 'PICK_WORD') {
         //has to get implemented in the controller in some way
         const onChange = (event: ChangeEvent<HTMLInputElement>) => { setInputVal(event.target.value) }
-        const onSubmit = () => { gameAreaController.pickWord(inputVal) }
+        const onSubmit = () => { gameAreaController.makeMove(inputVal) }
         currentPhaseComponent = <div>
         <Input placeholder='Enter your word:' onChange={onChange}></Input>
         <Button onClick={onSubmit}>Submit</Button>
@@ -127,9 +127,9 @@ export default function ConnectFourArea({
       else if (gamePhase === 'GUESS') {
         //in order to display the image we have to receive the image from the controller
         const onChange = (event: ChangeEvent<HTMLInputElement>) => { setInputVal(event.target.value) }
-        const onSubmit = () => { gameAreaController.guessDrawing(inputVal) }
+        const onSubmit = () => { gameAreaController.makeMove(inputVal) }
         currentPhaseComponent = <div>
-        <Image src={gameAreaController.imageURL}></Image>
+        <Image src={gameAreaController.drawing?.userDrawing}></Image>
         <Input placeholder='Enter your guess:' onChange={onChange}></Input>
         <Button onClick={onSubmit}>Submit</Button>
         </div>
