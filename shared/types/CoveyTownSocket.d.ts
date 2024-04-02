@@ -295,8 +295,8 @@ export type Drawing = {
    * 
    *  The drawing library will scale images to fit new dimensions, but we may not wish to allow that.
    */    
-  length: number,
-  width: number,
+  length?: number,
+  width?: number,
 
   metadata?: {
       // Support arbitrary metadata, since we probably won't need to use it very often.

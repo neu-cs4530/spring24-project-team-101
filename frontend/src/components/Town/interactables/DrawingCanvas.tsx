@@ -1,17 +1,39 @@
-import { Button } from '@chakra-ui/react';
+import { Button, useToast } from '@chakra-ui/react';
 import React, { useRef, useState } from 'react';
 import CanvasDraw from './react-canvas-draw/src/index';
 import { CirclePicker, ColorResult } from 'react-color';
+import GameAreaController, {
+  GameEventTypes,
+} from '../../../classes/interactable/GameAreaController';
+import TownController from '../../../classes/TownController';
+import { GameState } from '../../../types/CoveyTownSocket';
+import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
+import { nanoid } from 'nanoid';
 
 export type DrawingCanvasProps = {
-  telestrations?: boolean;
+  controller: GameAreaController<GameState, GameEventTypes>;
+  townController: TownController;
 };
 
-export default function DrawingCanvas({ telestrations = false }: DrawingCanvasProps): JSX.Element {
+export default function DrawingCanvas({
+  controller,
+  townController,
+}: DrawingCanvasProps): JSX.Element {
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
   const [saveData, setSaveData] = useState('');
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
+
+  let telestrations: boolean;
+  if (controller instanceof DrawingAreaController) {
+    telestrations = false;
+    // } else if (controller instanceof TelestrationsAreaController) {
+    //   telestrations = true;
+  } else {
+    throw new Error('Invalid controller type');
+  }
 
   const canvas = new CanvasDraw({
     hideGrid: true,
@@ -107,10 +129,26 @@ export default function DrawingCanvas({ telestrations = false }: DrawingCanvasPr
         <></>
       ) : (
         <Button
-          onClick={() => {
+          onClick={async () => {
+            setLoading(true);
             const url = canvasRef.current.getDataURL('png', false, '#ffffff');
-            console.log('send image to gallery not implemented');
-          }}>
+            try {
+              await controller.makeMove({
+                drawingID: nanoid(),
+                authorID: townController.ourPlayer.id,
+                userDrawing: url,
+              });
+            } catch (err) {
+              toast({
+                title: 'Error sending image to gallery',
+                description: (err as Error).toString(),
+                status: 'error',
+              });
+            }
+            setLoading(false);
+          }}
+          isLoading={loading}
+          disabled={loading}>
           Send to gallery
         </Button>
       )}
