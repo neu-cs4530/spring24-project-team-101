@@ -2,12 +2,18 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import PlayerController from '../../../classes/PlayerController';
 import { useInteractableAreaController } from '../../../classes/TownController';
 import useTownController from '../../../hooks/useTownController';
-import { GameStatus, InteractableID, TelestrationsAction } from '../../../types/CoveyTownSocket';
+import {
+  Drawing,
+  GameStatus,
+  InteractableID,
+  TelestrationsAction,
+  TelestrationsMove,
+} from '../../../types/CoveyTownSocket';
 import { Button, Input, List, ListItem, useToast, Image } from '@chakra-ui/react';
 import DrawingCanvas from './DrawingCanvas';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
 
-export default function ConnectFourArea({
+export default function TelestrationsArea({
   interactableID,
 }: {
   interactableID: InteractableID;
@@ -23,12 +29,18 @@ export default function ConnectFourArea({
   const [joiningGame, setJoiningGame] = useState(false);
   const [gameStatus, setGameStatus] = useState<GameStatus>(gameAreaController.status);
   const [gamePhase, setGamePhase] = useState<TelestrationsAction>(gameAreaController.gamePhase);
+  const [wordToDraw, setWordToDraw] = useState<string | undefined>(gameAreaController.wordToDraw);
+  const [imageToGuess, setImageToGuess] = useState<Drawing | undefined>(
+    gameAreaController.imageToGuess,
+  );
   const toast = useToast();
   useEffect(() => {
     const updateGameState = () => {
-      setGameStatus(gameAreaController.status || 'WAITING_TO_START');
+      setGameStatus(gameAreaController.status || 'WAITING_FOR_PLAYERS');
       setGamePhase(gameAreaController.gamePhase || 'PICK_WORD');
       setListOfPlayers(gameAreaController.players);
+      setWordToDraw(gameAreaController.wordToDraw || '');
+      setImageToGuess(gameAreaController.imageToGuess);
     };
     const onGameEnd = () => {
       toast({
@@ -53,28 +65,28 @@ export default function ConnectFourArea({
         {gameAreaController.isOurTurn ? 'your turn' : 'you have already submitted'}
       </>
     );
-  } else if (gameStatus == 'WAITING_TO_START') {
-    const startGameButton = (
-      <Button
-        onClick={async () => {
-          setJoiningGame(true);
-          try {
-            await gameAreaController.startGame();
-          } catch (err) {
-            toast({
-              title: 'Error starting game',
-              description: (err as Error).toString(),
-              status: 'error',
-            });
-          }
-          setJoiningGame(false);
-        }}
-        isLoading={joiningGame}
-        disabled={joiningGame}>
-        Start Game
-      </Button>
-    );
-    gameStatusText = <b>Waiting for players to press start. {startGameButton}</b>;
+    // } else if (gameStatus == 'WAITING_TO_START') {
+    //   const startGameButton = (
+    //     <Button
+    //       onClick={async () => {
+    //         setJoiningGame(true);
+    //         try {
+    //           await gameAreaController.startGame();
+    //         } catch (err) {
+    //           toast({
+    //             title: 'Error starting game',
+    //             description: (err as Error).toString(),
+    //             status: 'error',
+    //           });
+    //         }
+    //         setJoiningGame(false);
+    //       }}
+    //       isLoading={joiningGame}
+    //       disabled={joiningGame}>
+    //       Start Game
+    //     </Button>
+    //   );
+    //   gameStatusText = <b>Waiting for players to press start. {startGameButton}</b>;
   } else {
     const joinGameButton = (
       <Button
@@ -96,13 +108,35 @@ export default function ConnectFourArea({
         Join New Game
       </Button>
     );
+
+    const startGameButton = (
+      <Button
+        onClick={async () => {
+          setJoiningGame(true);
+          try {
+            await gameAreaController.startGame();
+          } catch (err) {
+            toast({
+              title: 'Error starting game',
+              description: (err as Error).toString(),
+              status: 'error',
+            });
+          }
+          setJoiningGame(false);
+        }}
+        isLoading={joiningGame}
+        disabled={joiningGame}>
+        Start Game
+      </Button>
+    );
+
     let gameStatusStr;
     if (gameStatus === 'OVER') gameStatusStr = 'over';
     //may want to add option to display chains that were created
     else if (gameStatus === 'WAITING_FOR_PLAYERS') gameStatusStr = 'waiting for players to join';
     gameStatusText = (
       <b>
-        Game {gameStatusStr}. {joinGameButton}
+        Game {gameStatusStr}. {joinGameButton} {startGameButton}
       </b>
     );
   }
@@ -125,9 +159,12 @@ export default function ConnectFourArea({
     );
   } else if (gamePhase === 'DRAW') {
     currentPhaseComponent = (
-      <DrawingCanvas
-        telestrationsAreaController={gameAreaController}
-        telestrations={true}></DrawingCanvas>
+      <div>
+        <>Draw {wordToDraw ? wordToDraw : 'NO WORD YET'}.</>
+        <DrawingCanvas
+          telestrationsAreaController={gameAreaController}
+          telestrations={true}></DrawingCanvas>
+      </div>
     );
   } else if (gamePhase === 'GUESS') {
     //in order to display the image we have to receive the image from the controller
@@ -138,6 +175,7 @@ export default function ConnectFourArea({
       gameAreaController.makeMove(inputVal);
     };
     currentPhaseComponent = (
+      // TODO: fix this
       <div>
         <Image src={gameAreaController.drawing?.userDrawing}></Image>
         <Input placeholder='Enter your guess:' onChange={onChange}></Input>

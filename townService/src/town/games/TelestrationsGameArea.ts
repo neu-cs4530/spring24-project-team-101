@@ -5,9 +5,11 @@ import InvalidParametersError, {
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
+  GameInstance,
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableType,
+  TelestrationsGameState,
 } from '../../types/CoveyTownSocket';
 import GameArea from './GameArea';
 import TelestrationsGame from './TelestrationsGame';
@@ -24,31 +26,9 @@ export default class TelestrationsGameArea extends GameArea<TelestrationsGame> {
     return 'TelestrationsArea';
   }
 
-  /** 
   private _stateUpdated(updatedState: GameInstance<TelestrationsGameState>) {
-    if (updatedState.state.status === 'OVER') {
-      // If we haven't yet recorded the outcome, do so now.
-      const gameID = this._game?.id;
-      if (gameID && !this._history.find(eachResult => eachResult.gameID === gameID)) {
-        const { red, yellow } = updatedState.state;
-        if (red && yellow) {
-          const redName =
-            this._occupants.find(eachPlayer => eachPlayer.id === red)?.userName || red;
-          const yellowName =
-            this._occupants.find(eachPlayer => eachPlayer.id === yellow)?.userName || yellow;
-          this._history.push({
-            gameID,
-            scores: {
-              [redName]: updatedState.state.winner === red ? 1 : 0,
-              [yellowName]: updatedState.state.winner === yellow ? 1 : 0,
-            },
-          });
-        }
-      }
-    }
     this._emitAreaChanged();
   }
-  */
 
   /**
    * Handle a command from a player in this game area.
@@ -93,7 +73,7 @@ export default class TelestrationsGameArea extends GameArea<TelestrationsGame> {
         playerID: player.id,
         move: command.move,
       });
-      // this._stateUpdated(game.toModel());
+      this._stateUpdated(game.toModel());
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'JoinGame') {
@@ -104,7 +84,7 @@ export default class TelestrationsGameArea extends GameArea<TelestrationsGame> {
         this._game = game;
       }
       game.join(player);
-      // this._stateUpdated(game.toModel());
+      this._stateUpdated(game.toModel());
       return { gameID: game.id } as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'LeaveGame') {
@@ -116,7 +96,7 @@ export default class TelestrationsGameArea extends GameArea<TelestrationsGame> {
         throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
       }
       game.leave(player);
-      // this._stateUpdated(game.toModel());
+      this._stateUpdated(game.toModel());
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'StartGame') {
@@ -128,7 +108,7 @@ export default class TelestrationsGameArea extends GameArea<TelestrationsGame> {
         throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
       }
       game.startGame(player);
-      // this._stateUpdated(game.toModel());
+      this._stateUpdated(game.toModel());
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     throw new InvalidParametersError(INVALID_COMMAND_MESSAGE);
