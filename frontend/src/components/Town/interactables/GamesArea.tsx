@@ -17,6 +17,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
+import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { GenericGameAreaController } from '../../../classes/interactable/GameAreaController';
 import PlayerController from '../../../classes/PlayerController';
 import { useInteractable, useInteractableAreaController } from '../../../classes/TownController';
@@ -24,6 +25,7 @@ import useTownController from '../../../hooks/useTownController';
 import { GameResult, InteractableID } from '../../../types/CoveyTownSocket';
 import ChatChannel from './ChatChannel';
 import ConnectFourArea from './ConnectFour/ConnectFourArea';
+import DrawingsArea from './DrawingsArea';
 import GameAreaInteractable from './GameArea';
 import Leaderboard from './Leaderboard';
 import TicTacToeArea from './TicTacToe/TicTacToeArea';
@@ -100,6 +102,8 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
             <ConnectFourArea interactableID={interactableID} />
           ) : gameAreaController.toInteractableAreaModel().type === 'TicTacToeArea' ? (
             <TicTacToeArea interactableID={interactableID} />
+          ) : gameAreaController.toInteractableAreaModel().type === 'DrawingArea' ? (
+            <DrawingsArea interactableID={interactableID} />
           ) : (
             <>{INVALID_GAME_AREA_TYPE_MESSAGE}</>
           )}
