@@ -1,84 +1,91 @@
-import { Drawing } from '../../types/CoveyTownSocket';
-import InteractableAreaController, {
-  BaseInteractableEventMap,
-  DRAWING_AREA_TYPE,
-} from './InteractableAreaController';
-import { DrawingArea as DrawingAreaModel } from '../../types/CoveyTownSocket';
+import { Drawing, DrawingGameState, GameArea, GameStatus } from '../../types/CoveyTownSocket';
 import { useState, useEffect } from 'react';
+import GameAreaController, { GameEventTypes } from './GameAreaController';
+import _ from 'lodash';
 
-export type DrawingEvents = BaseInteractableEventMap & {
-  drawingChanged: (drawing: Drawing) => void;
+export type DrawingEvents = GameEventTypes & {
+  drawingsChanged: (drawings: Drawing[]) => void;
 };
 
-// The special string that will be displayed when a drawing area does not have a drawing set
-export const NO_DRAWING_STRING = '(No Drawing)';
-
-export default class DrawingAreaController extends InteractableAreaController<
-  DrawingEvents,
-  DrawingAreaModel
+export default class DrawingAreaController extends GameAreaController<
+  DrawingGameState,
+  GameEventTypes
 > {
-  protected _drawing;
+  protected _drawings: Drawing[] = [];
 
-  constructor(id: string, drawing?: Drawing) {
-    super(id);
-    this._drawing = drawing;
+  get drawings(): Drawing[] {
+    return this._drawings;
   }
 
-  toInteractableAreaModel(): DrawingAreaModel {
-    return {
-      type: 'DrawingArea',
-      id: this.id,
-      occupants: this.occupants.map(player => player.id),
-      drawing: this._drawing,
-    };
-  }
-
-  protected _updateFrom(newModel: DrawingAreaModel): void {
-    this._drawing = newModel.drawing;
+  get status(): GameStatus {
+    const status = this._model.game?.state.status;
+    if (!status) {
+      return 'IN_PROGRESS';
+    }
+    return status;
   }
 
   public isActive(): boolean {
-    return this._drawing !== undefined && this.occupants.length > 0;
+    return this.occupants.length > 0;
   }
 
-  public get friendlyName(): string {
-    return `${this.id}: Drawing ${
-      this._drawing !== undefined ? this._drawing.drawingID : NO_DRAWING_STRING
-    }`;
+  public isEmpty(): boolean {
+    return this.occupants.length === 0;
   }
 
-  get drawing(): Drawing | undefined {
-    return this._drawing;
-  }
-
-  set drawing(newDrawing: Drawing | undefined) {
-    if (this._drawing !== newDrawing) {
-      this.emit('drawingChangeD', newDrawing);
-      if (newDrawing !== undefined) this.emit('friendlyNameChange', newDrawing.drawingID);
-      else this.emit('friendlyNameChange', NO_DRAWING_STRING);
+  protected _updateFrom(newModel: GameArea<DrawingGameState>): void {
+    super._updateFrom(newModel);
+    const newGame = newModel.game;
+    if (newGame) {
+      let newDrawings: Drawing[] = [];
+      newGame.state.drawings.forEach(drawing => {
+        newDrawings = newDrawings.concat(drawing);
+      });
+      if (!_.isEqual(newDrawings, this._drawings)) {
+        this._drawings = newDrawings;
+        this.emit('drawingsChanged', this._drawings);
+      }
     }
-    this._drawing = newDrawing;
   }
 
-  public get type(): string {
-    return DRAWING_AREA_TYPE;
+  public async makeMove(drawing: Drawing): Promise<void> {
+    const instanceID = this._instanceID;
+    if (!instanceID) {
+      throw new Error('No active drawings area');
+    }
+    await this._townController.sendInteractableCommand(this.id, {
+      type: 'SaveDrawing',
+      gameID: instanceID,
+      drawing,
+    });
+  }
+
+  public async toggleMode(): Promise<void> {
+    const instanceID = this._instanceID;
+    if (!instanceID) {
+      throw new Error('No active drawings area');
+    }
+    await this._townController.sendInteractableCommand(this.id, {
+      type: 'ToggleMode',
+      gameID: instanceID,
+    });
   }
 }
 
 /**
- * A react hook to retrieve the topic of a ConversationAreaController.
- * If there is currently no topic defined, it will return NO_TOPIC_STRING.
+ * A react hook to retrieve the current list of drawings present in this
+ * Drawing/Gallery Area.
  *
  * This hook will re-render any components that use it when the topic changes.
  */
-export function useDrawingAreaDrawing(area: DrawingAreaController): Drawing | undefined {
-  const [drawing, setDrawing] = useState(area.drawing);
+export function useDrawings(area: DrawingAreaController): Drawing[] {
+  const [drawings, setDrawings] = useState(area.drawings);
   useEffect(() => {
-    area.addListener('drawingChange', setDrawing);
+    area.addListener('drawingsUpdated', setDrawings);
     return () => {
-      area.removeListener('drawingChange', setDrawing);
+      area.removeListener('drawingsUpdated', setDrawings);
     };
   }, [area]);
 
-  return drawing;
+  return drawings;
 }

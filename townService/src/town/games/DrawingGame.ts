@@ -17,7 +17,15 @@ export default class DrawingGame extends Game<DrawingGameState, DrawingMove> {
 
   public applyMove(move: GameMove<DrawingMove>): void {
     // TODO: (optional) restrict the list to e.g. 10 images, removing the oldest images queue style
-    this.state.drawings.concat(move.move);
+    this.state.drawings = this.state.drawings.concat(move.move);
+  }
+
+  public toggleMode() {
+    if (this.state.status === 'OVER') {
+      this.state.status = 'IN_PROGRESS';
+    } else {
+      this.state.status = 'OVER';
+    }
   }
 
   protected _join(player: Player): void {
