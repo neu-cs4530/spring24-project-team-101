@@ -647,7 +647,7 @@
                         {
                          "name":"type",
                          "type":"string",
-                         "value":"ConnectFour"
+                         "value":"Telestrations"
                         }],
                  "rotation":0,
                  "type":"GameArea",

@@ -5,8 +5,6 @@ import InvalidParametersError, {
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
-  TelestrationsGameState,
-  GameInstance,
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableType,
