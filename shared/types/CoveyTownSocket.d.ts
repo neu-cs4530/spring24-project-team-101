@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: TypedInteractable[];
 }
 
-export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'DrawingArea';
+export type InteractableType = 'ConversationArea' | 'ViewingArea' | 'TicTacToeArea' | 'ConnectFourArea' | 'DrawingArea' | 'TelestrationsArea';
 export interface Interactable {
   type: InteractableType;
   id: InteractableID;
@@ -348,6 +348,7 @@ export interface TelestrationsGameState extends GameState {
  * Otherwise, `drawing` is ignored.
  */
 export type TelestrationsMove = {
+  gamePiece: "STUB",
   action: TelestrationsAction,
   word?: string,
   drawing?: Drawing,

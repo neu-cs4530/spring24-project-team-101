@@ -51,6 +51,7 @@ export default class TelestrationsAreaController extends GameAreaController<
             type: 'GameMove',
             gameID: instanceID,
             move: {
+            gamePiece: "STUB",
             action: 'GUESS',
             word: input,
             },
@@ -62,6 +63,7 @@ export default class TelestrationsAreaController extends GameAreaController<
             type: 'GameMove',
             gameID: instanceID,
             move: {
+            gamePiece: "STUB",
             action: 'DRAW',
             drawing: input,
             },
