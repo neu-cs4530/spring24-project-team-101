@@ -17,12 +17,14 @@ import {
   ServerToClientEvents,
   SocketData,
   ViewingArea as ViewingAreaModel,
+  DrawingArea as DrawingAreaModel,
 } from '../types/CoveyTownSocket';
 import { logError } from '../Utils';
 import ConversationArea from './ConversationArea';
 import GameAreaFactory from './games/GameAreaFactory';
 import InteractableArea from './InteractableArea';
 import ViewingArea from './ViewingArea';
+import DrawingArea from './DrawingArea';
 
 /**
  * The Town class implements the logic for each town: managing the various events that
@@ -342,6 +344,22 @@ export default class Town {
   }
 
   /**
+   * Creates a new Drawing area in the town
+   */
+  public addDrawingArea(drawingArea: DrawingAreaModel): boolean {
+    const area = this._interactables.find(
+      eachArea => eachArea.id === drawingArea.id,
+    ) as DrawingArea;
+    console.log(area);
+    if (!area) {
+      return false;
+    }
+    area.addPlayersWithinBounds(this._players);
+    this._broadcastEmitter.emit('interactableUpdate', area.toModel());
+    return true;
+  }
+
+  /**
    * Fetch a player's session based on the provided session token. Returns undefined if the
    * session token is not valid.
    *
@@ -417,6 +435,9 @@ export default class Town {
       .map(eachConvAreaObj =>
         ConversationArea.fromMapObject(eachConvAreaObj, this._broadcastEmitter),
       );
+    const drawingAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'DrawingArea')
+      .map(eachDrawAreaObj => DrawingArea.fromMapObject(eachDrawAreaObj, this._broadcastEmitter));
 
     const gameAreas = objectLayer.objects
       .filter(eachObject => eachObject.type === 'GameArea')
@@ -425,7 +446,8 @@ export default class Town {
     this._interactables = this._interactables
       .concat(viewingAreas)
       .concat(conversationAreas)
-      .concat(gameAreas);
+      .concat(gameAreas)
+      .concat(drawingAreas);
     this._validateInteractables();
   }
 

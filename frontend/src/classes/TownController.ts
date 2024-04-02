@@ -32,6 +32,7 @@ import {
   isConversationArea,
   isTicTacToeArea,
   isViewingArea,
+  isDrawingArea,
 } from '../types/TypeUtils';
 import ConnectFourAreaController from './interactable/ConnectFourAreaController';
 import ConversationAreaController from './interactable/ConversationAreaController';
@@ -640,6 +641,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             this._interactableControllers.push(
               new ConnectFourAreaController(eachInteractable.id, eachInteractable, this),
             );
+          } else if (isDrawingArea(eachInteractable)) {
+            this._interactableControllers.push(
+              new DrawingAreaController(eachInteractable.id, undefined),
+            );
           }
         });
         this._userID = initialData.userID;
@@ -700,6 +705,20 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       return existingController as GameAreaController<GameType, EventsType>;
     } else {
       throw new Error('Game area controller not created');
+    }
+  }
+
+  /**
+   * ADDED: Retrieves the drawing area controller corresponding to a game area by ID
+   */
+  public getDrawingAreaController(drawingArea: DrawingArea): DrawingAreaController {
+    const existingController = this._interactableControllers.find(
+      eachExistingArea => eachExistingArea.id === drawingArea.name,
+    );
+    if (existingController instanceof DrawingAreaController) {
+      return existingController;
+    } else {
+      throw new Error(`No such drawing area controller ${existingController}`);
     }
   }
 

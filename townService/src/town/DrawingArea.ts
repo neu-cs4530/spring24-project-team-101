@@ -1,10 +1,14 @@
+import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import InvalidParametersError, { INVALID_COMMAND_MESSAGE } from '../lib/InvalidParametersError';
 import Player from '../lib/Player';
 import {
+  BoundingBox,
   Drawing,
   DrawingArea as DrawingAreaModel,
   InteractableCommand,
   InteractableCommandReturnType,
+  InteractableID,
+  TownEmitter,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
 
@@ -48,5 +52,23 @@ export default class DrawingArea extends InteractableArea {
   /** The drawing area is "active" when there are players inside of it  */
   public get isActive(): boolean {
     return this._occupants.length > 0;
+  }
+
+  /**
+   * Creates a new Drawing Area object that will represent a Conversation Area object in the town map.
+   * @param mapObject An ITiledMapObject that represents a rectangle in which this conversation area exists
+   * @param broadcastEmitter An emitter that can be used by this conversation area to broadcast updates
+   * @returns
+   */
+  public static fromMapObject(
+    mapObject: ITiledMapObject,
+    broadcastEmitter: TownEmitter,
+  ): DrawingArea {
+    const { name, width, height } = mapObject;
+    if (!width || !height) {
+      throw new Error(`Malformed viewing area ${name}`);
+    }
+    const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
+    return new DrawingArea(name as InteractableID, rect, broadcastEmitter);
   }
 }
