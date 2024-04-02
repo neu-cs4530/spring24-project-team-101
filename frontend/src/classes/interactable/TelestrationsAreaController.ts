@@ -1,5 +1,5 @@
 import { Drawing, GameArea, GameStatus, TelestrationsAction, TelestrationsGameState, TelestrationsMove } from "../../types/CoveyTownSocket";
-import GameAreaController, { GameEventTypes, NO_GAME_IN_PROGRESS_ERROR } from "./GameAreaController";
+import GameAreaController, { GameEventTypes, NO_GAME_IN_PROGRESS_ERROR, NO_GAME_STARTABLE } from "./GameAreaController";
 
 
 export type TelestrationsEvents = GameEventTypes & {
@@ -36,6 +36,11 @@ export default class TelestrationsAreaController extends GameAreaController<
     }
 
     // Keep an eye out for errors concerning users giving a drawing when not supposed to or vice versea
+    /**
+     * 
+     * @param input is either a string or a Drawing object, depending on the type of move the player is making
+     * @returns a promise that resolves when the move is made
+     */
     public async makeMove(input: Drawing | string): Promise<void> {
         const instanceID = this._instanceID;
     if (!instanceID || this._model.game?.state.status !== 'IN_PROGRESS') {
@@ -106,6 +111,22 @@ export default class TelestrationsAreaController extends GameAreaController<
   }
     }
   
-    
+  /**
+   * Sends a request to the server to start the game.
+   *
+   * If the game is not in the WAITING_TO_START state, throws an error.
+   *
+   * @throws an error with message NO_GAME_STARTABLE if there is no game waiting to start
+   */
+  public async startGame(): Promise<void> {
+    const instanceID = this._instanceID;
+    if (!instanceID || this._model.game?.state.status !== 'WAITING_TO_START') {
+      throw new Error(NO_GAME_STARTABLE);
+    }
+    await this._townController.sendInteractableCommand(this.id, {
+      gameID: instanceID,
+      type: 'StartGame',
+    });
+  }  
 
 }
