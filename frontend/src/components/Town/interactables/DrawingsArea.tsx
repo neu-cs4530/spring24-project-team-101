@@ -1,11 +1,9 @@
-import { Button, Image, List, ListItem, useToast } from '@chakra-ui/react';
+import { Button, Image, List, ListItem } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import DrawingAreaController, {
-  useDrawings,
-} from '../../../classes/interactable/DrawingAreaController';
+import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { useInteractableAreaController } from '../../../classes/TownController';
 import useTownController from '../../../hooks/useTownController';
-import { Drawing, GameStatus, InteractableID } from '../../../types/CoveyTownSocket';
+import { Drawing, InteractableID } from '../../../types/CoveyTownSocket';
 import DrawingCanvas from './DrawingCanvas';
 
 export default function DrawingsArea({
@@ -15,22 +13,8 @@ export default function DrawingsArea({
 }): JSX.Element {
   const gameAreaController = useInteractableAreaController<DrawingAreaController>(interactableID);
   const townController = useTownController();
-  //const drawings = useDrawings(gameAreaController);
-  //const [gameStatus, setGameStatus] = useState<GameStatus>('OVER');
-  const [drawings, setDrawings] = useState<Drawing[]>([]);
+  const [drawings, setDrawings] = useState<Drawing[]>(gameAreaController.drawings);
   const [nowDrawing, setNowDrawing] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const toast = useToast();
-
-  //   useEffect(() => {
-  //     const updateStatus = () => {
-  //       setGameStatus(gameAreaController.status || 'OVER');
-  //     };
-  //     gameAreaController.addListener('gameUpdated', updateStatus);
-  //     return () => {
-  //       gameAreaController.removeListener('gameUpdated', updateStatus);
-  //     };
-  //   }, [gameAreaController]);
 
   useEffect(() => {
     const updateDrawings = (newDrawings: Drawing[]) => {
@@ -68,26 +52,9 @@ export default function DrawingsArea({
     <>
       {displayComponent}
       <Button
-        // onClick={async () => {
-        //   setLoading(true);
-        //   try {
-        //     await gameAreaController.toggleMode();
-        //   } catch (err) {
-        //     toast({
-        //       title: 'Error switching between modes',
-        //       description: (err as Error).toString(),
-        //       status: 'error',
-        //     });
-        //   }
-        //   console.log('sent toggleMode command to controller');
-        //   setLoading(false);
-        // }}
         onClick={() => {
           setNowDrawing(!nowDrawing);
-        }}
-        // isLoading={loading}
-        // disabled={loading}
-      >
+        }}>
         Switch to {!nowDrawing ? 'drawing canvas' : 'gallery'}
       </Button>
     </>
