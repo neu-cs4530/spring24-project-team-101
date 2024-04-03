@@ -5,6 +5,7 @@ import _ from 'lodash';
 
 export type DrawingEvents = GameEventTypes & {
   drawingsChanged: (drawings: Drawing[]) => void;
+  modeChanged: (mode: GameStatus) => void;
 };
 
 export default class DrawingAreaController extends GameAreaController<
@@ -13,16 +14,14 @@ export default class DrawingAreaController extends GameAreaController<
 > {
   protected _drawings: Drawing[] = [];
 
+  protected _status: GameStatus = 'IN_PROGRESS';
+
   get drawings(): Drawing[] {
     return this._drawings;
   }
 
   get status(): GameStatus {
-    const status = this._model.game?.state.status;
-    if (!status) {
-      return 'IN_PROGRESS';
-    }
-    return status;
+    return this._status;
   }
 
   public isActive(): boolean {
@@ -45,29 +44,24 @@ export default class DrawingAreaController extends GameAreaController<
         this._drawings = newDrawings;
         this.emit('drawingsChanged', this._drawings);
       }
+      const newStatus = newGame.state.status;
+      if (newStatus !== this._status) {
+        this._status = newStatus;
+        this.emit('modeChanged', this._status);
+      }
     }
   }
 
   public async makeMove(drawing: Drawing): Promise<void> {
-    const instanceID = this._instanceID;
-    if (!instanceID) {
-      throw new Error('No active drawings area');
-    }
     await this._townController.sendInteractableCommand(this.id, {
       type: 'SaveDrawing',
-      gameID: instanceID,
       drawing,
     });
   }
 
   public async toggleMode(): Promise<void> {
-    const instanceID = this._instanceID;
-    if (!instanceID) {
-      throw new Error('No active drawings area');
-    }
     await this._townController.sendInteractableCommand(this.id, {
       type: 'ToggleMode',
-      gameID: instanceID,
     });
   }
 }
@@ -81,9 +75,9 @@ export default class DrawingAreaController extends GameAreaController<
 export function useDrawings(area: DrawingAreaController): Drawing[] {
   const [drawings, setDrawings] = useState(area.drawings);
   useEffect(() => {
-    area.addListener('drawingsUpdated', setDrawings);
+    area.addListener('drawingsChanged', setDrawings);
     return () => {
-      area.removeListener('drawingsUpdated', setDrawings);
+      area.removeListener('drawingsChanged', setDrawings);
     };
   }, [area]);
 

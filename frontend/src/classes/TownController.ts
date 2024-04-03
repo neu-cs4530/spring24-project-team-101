@@ -30,13 +30,13 @@ import {
 import {
   isConnectFourArea,
   isConversationArea,
+  isDrawingArea,
   isTicTacToeArea,
   isViewingArea,
-  isDrawingArea,
 } from '../types/TypeUtils';
 import ConnectFourAreaController from './interactable/ConnectFourAreaController';
-import DrawingAreaController from './interactable/DrawingAreaController';
 import ConversationAreaController from './interactable/ConversationAreaController';
+import DrawingAreaController from './interactable/DrawingAreaController';
 import GameAreaController, { GameEventTypes } from './interactable/GameAreaController';
 import InteractableAreaController, {
   BaseInteractableEventMap,

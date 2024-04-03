@@ -4,6 +4,7 @@ import InvalidParametersError, {
 } from '../../lib/InvalidParametersError';
 import Player from '../../lib/Player';
 import {
+  DrawingGameState,
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableType,
@@ -16,6 +17,19 @@ export default class DrawingArea extends GameArea<DrawingGame> {
     return 'DrawingArea';
   }
 
+  public get game(): DrawingGame {
+    if (!this._game) {
+      this._game = new DrawingGame();
+    }
+    return this._game;
+  }
+
+  // public toModel(): GameArea<DrawingGameState> {
+  //   const model = super.toModel();
+  //   model.game = this.game.toModel();
+  //   return model;
+  // }
+
   public handleCommand<CommandType extends InteractableCommand>(
     command: CommandType,
     player: Player,
@@ -25,10 +39,7 @@ export default class DrawingArea extends GameArea<DrawingGame> {
       if (!drawing) {
         throw new InvalidParametersError('No drawing to save');
       }
-      if (command.gameID !== this.game?.id) {
-        throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
-      }
-      this.game?.applyMove({
+      this.game.applyMove({
         playerID: player.id,
         gameID: this.game?.id,
         move: command.drawing,
@@ -37,28 +48,7 @@ export default class DrawingArea extends GameArea<DrawingGame> {
       return undefined as InteractableCommandReturnType<CommandType>;
     }
     if (command.type === 'ToggleMode') {
-      if (command.gameID !== this.game?.id) {
-        throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
-      }
       this.game.toggleMode();
-      this._emitAreaChanged();
-      return undefined as InteractableCommandReturnType<CommandType>;
-    }
-    if (command.type === 'JoinGame') {
-      let game = this._game;
-      if (!game) {
-        game = new DrawingGame();
-        this._game = game;
-      }
-      this.game?.join(player);
-      this._emitAreaChanged();
-      return { gameID: game.id } as InteractableCommandReturnType<CommandType>;
-    }
-    if (command.type === 'LeaveGame') {
-      if (command.gameID !== this.game?.id) {
-        throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
-      }
-      this.game.leave(player);
       this._emitAreaChanged();
       return undefined as InteractableCommandReturnType<CommandType>;
     }

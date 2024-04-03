@@ -239,13 +239,11 @@ export interface StartGameCommand {
 
 export interface SaveDrawingCommand {
   type: 'SaveDrawing';
-  gameID: GameInstanceID;
   drawing: Drawing;
 }
 
 export interface ToggleModeCommand {
   type: 'ToggleMode';
-  gameID: GameInstanceID;
 }
 
 export interface GameMoveCommand<MoveType> {

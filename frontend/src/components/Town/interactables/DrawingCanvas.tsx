@@ -9,6 +9,7 @@ import TownController from '../../../classes/TownController';
 import { GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { nanoid } from 'nanoid';
+import { assert } from 'console';
 
 export type DrawingCanvasProps = {
   controller: GameAreaController<GameState, GameEventTypes>;
@@ -27,10 +28,10 @@ export default function DrawingCanvas({
   const toast = useToast();
 
   let telestrations: boolean;
-  if (controller instanceof DrawingAreaController) {
+  if (controller.toInteractableAreaModel().type === 'DrawingArea') {
     telestrations = false;
     // } else if (controller instanceof TelestrationsAreaController) {
-    //   telestrations = true;
+    //   telestrations = true; controller instanceof DrawingAreaController
   } else {
     throw new Error('Invalid controller type');
   }
@@ -133,7 +134,7 @@ export default function DrawingCanvas({
             setLoading(true);
             const url = canvasRef.current.getDataURL('png', false, '#ffffff');
             try {
-              await controller.makeMove({
+              await (controller as DrawingAreaController).makeMove({
                 drawingID: nanoid(),
                 authorID: townController.ourPlayer.id,
                 userDrawing: url,
