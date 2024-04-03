@@ -1,27 +1,25 @@
-import { Drawing, DrawingGameState, GameArea, GameStatus } from '../../types/CoveyTownSocket';
+import { Drawing, DrawingGameState, GameArea } from '../../types/CoveyTownSocket';
 import { useState, useEffect } from 'react';
 import GameAreaController, { GameEventTypes } from './GameAreaController';
 import _ from 'lodash';
 
 export type DrawingEvents = GameEventTypes & {
   drawingsChanged: (drawings: Drawing[]) => void;
-  modeChanged: (mode: GameStatus) => void;
 };
 
 export default class DrawingAreaController extends GameAreaController<
   DrawingGameState,
   GameEventTypes
 > {
-  protected _drawings: Drawing[] = [];
-
-  protected _status: GameStatus = 'IN_PROGRESS';
+  protected _drawings: Drawing[] | undefined = this._model.game?.state.drawings.map(
+    drawing => drawing,
+  );
 
   get drawings(): Drawing[] {
+    if (!this._drawings) {
+      return [];
+    }
     return this._drawings;
-  }
-
-  get status(): GameStatus {
-    return this._status;
   }
 
   public isActive(): boolean {
@@ -44,11 +42,6 @@ export default class DrawingAreaController extends GameAreaController<
         this._drawings = newDrawings;
         this.emit('drawingsChanged', this._drawings);
       }
-      const newStatus = newGame.state.status;
-      if (newStatus !== this._status) {
-        this._status = newStatus;
-        this.emit('modeChanged', this._status);
-      }
     }
   }
 
@@ -56,12 +49,6 @@ export default class DrawingAreaController extends GameAreaController<
     await this._townController.sendInteractableCommand(this.id, {
       type: 'SaveDrawing',
       drawing,
-    });
-  }
-
-  public async toggleMode(): Promise<void> {
-    await this._townController.sendInteractableCommand(this.id, {
-      type: 'ToggleMode',
     });
   }
 }

@@ -15,17 +15,19 @@ export default class DrawingGame extends Game<DrawingGameState, DrawingMove> {
     });
   }
 
+  /**
+   * Adds another drawing, contained in a GameMove, to the list of drawings.
+   * If the length exceeds 10 drawings, removes the earliest drawing, queue-style.
+   *
+   * @param move a GameMove containing the drawing to add to the list in its `move` field
+   */
   public applyMove(move: GameMove<DrawingMove>): void {
-    // TODO: (optional) restrict the list to e.g. 10 images, removing the oldest images queue style
-    this.state.drawings = this.state.drawings.concat(move.move);
-  }
-
-  public toggleMode() {
-    if (this.state.status === 'OVER') {
-      this.state.status = 'IN_PROGRESS';
-    } else {
-      this.state.status = 'OVER';
+    let drawings = this.state.drawings.concat(move.move);
+    if (drawings.length > 10) {
+      const start = drawings.length - 10;
+      drawings = drawings.slice(start, undefined);
     }
+    this.state.drawings = drawings;
   }
 
   protected _join(player: Player): void {
