@@ -112,13 +112,16 @@ export default function TelestrationsArea({
     let gameActionButton;
 
     // Adjust the condition to allow joining regardless of the game status being "WAITING_FOR_PLAYERS" or "WAITING_TO_START"
-    if (!hasJoinedGame) {
+    if (!hasJoinedGame || gameStatus === 'OVER') {
       gameActionButton = joinGameButton;
     } else if (gameStatus === 'WAITING_TO_START' && hasJoinedGame) {
       gameActionButton = startGameButton;
     } // Add other conditions as needed
     let gameStatusStr;
-    if (gameStatus === 'OVER') gameStatusStr = 'over';
+    if (gameStatus === 'OVER') {
+      console.log(gameStatus);
+      gameStatusStr = 'over';
+    }
     //may want to add option to display chains that were created
     else if (gameStatus === 'WAITING_FOR_PLAYERS') gameStatusStr = 'waiting for players to join';
     else if (gameStatus === 'WAITING_TO_START')
