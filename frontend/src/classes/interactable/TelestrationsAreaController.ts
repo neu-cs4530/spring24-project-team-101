@@ -89,9 +89,13 @@ export default class TelestrationsAreaController extends GameAreaController<
     return 'GUESS';
   }
 
+  /**
+   * Returns the current status of the game.
+   * Starts the game in a WAITING_FOR_PLAYERS state.
+   */
   get status(): GameStatus {
     if (!this._model.game) {
-      return 'WAITING_TO_START';
+      return 'WAITING_FOR_PLAYERS';
     } else {
       return this._model.game?.state.status;
     }

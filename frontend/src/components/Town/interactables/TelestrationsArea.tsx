@@ -27,6 +27,8 @@ export default function TelestrationsArea({
     gameAreaController.players,
   ); //gameAreaController.players is an array of PlayerControllers
   const [joiningGame, setJoiningGame] = useState(false);
+  // Inside your component's function
+  const [hasJoinedGame, setHasJoinedGame] = useState(false);
   const [gameStatus, setGameStatus] = useState<GameStatus>(gameAreaController.status);
   const [gamePhase, setGamePhase] = useState<TelestrationsAction>(gameAreaController.gamePhase);
   const [wordToDraw, setWordToDraw] = useState<string | undefined>(gameAreaController.wordToDraw);
@@ -65,28 +67,6 @@ export default function TelestrationsArea({
         {gameAreaController.isOurTurn ? 'your turn' : 'you have already submitted'}
       </>
     );
-    // } else if (gameStatus == 'WAITING_TO_START') {
-    //   const startGameButton = (
-    //     <Button
-    //       onClick={async () => {
-    //         setJoiningGame(true);
-    //         try {
-    //           await gameAreaController.startGame();
-    //         } catch (err) {
-    //           toast({
-    //             title: 'Error starting game',
-    //             description: (err as Error).toString(),
-    //             status: 'error',
-    //           });
-    //         }
-    //         setJoiningGame(false);
-    //       }}
-    //       isLoading={joiningGame}
-    //       disabled={joiningGame}>
-    //       Start Game
-    //     </Button>
-    //   );
-    //   gameStatusText = <b>Waiting for players to press start. {startGameButton}</b>;
   } else {
     const joinGameButton = (
       <Button
@@ -94,6 +74,7 @@ export default function TelestrationsArea({
           setJoiningGame(true);
           try {
             await gameAreaController.joinGame();
+            setHasJoinedGame(true); // Update state to reflect the user has joined the game
           } catch (err) {
             toast({
               title: 'Error joining game',
@@ -108,7 +89,6 @@ export default function TelestrationsArea({
         Join New Game
       </Button>
     );
-
     const startGameButton = (
       <Button
         onClick={async () => {
@@ -129,17 +109,27 @@ export default function TelestrationsArea({
         Start Game
       </Button>
     );
+    let gameActionButton;
 
+    // Adjust the condition to allow joining regardless of the game status being "WAITING_FOR_PLAYERS" or "WAITING_TO_START"
+    if (!hasJoinedGame) {
+      gameActionButton = joinGameButton;
+    } else if (gameStatus === 'WAITING_TO_START' && hasJoinedGame) {
+      gameActionButton = startGameButton;
+    } // Add other conditions as needed
     let gameStatusStr;
     if (gameStatus === 'OVER') gameStatusStr = 'over';
     //may want to add option to display chains that were created
     else if (gameStatus === 'WAITING_FOR_PLAYERS') gameStatusStr = 'waiting for players to join';
+    else if (gameStatus === 'WAITING_TO_START')
+      gameStatusStr = 'waiting for players to press start, more players may still join';
     gameStatusText = (
       <b>
-        Game {gameStatusStr}. {joinGameButton} {startGameButton}
+        Game {gameStatusStr}. {gameActionButton}
       </b>
     );
   }
+  // Now, modify the conditional rendering to use `hasJoinedGame` to decide which button to show
   let currentPhaseComponent = <></>;
   if (!gameAreaController.isOurTurn) {
     currentPhaseComponent = <>... already submitted</>;
