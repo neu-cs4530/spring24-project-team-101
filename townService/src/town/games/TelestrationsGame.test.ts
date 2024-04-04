@@ -41,7 +41,7 @@ function createMove(
   return {
     gameID: game.id,
     playerID: player.id,
-    move: { action, word, drawing },
+    move: { action, word, drawing, gamePiece: 'STUB' },
   };
 }
 
@@ -206,6 +206,17 @@ describe('Telestrations Game', () => {
       // All players are ready:
       players.slice(1).forEach(p => expect(game.state.playersReady).toContain(p.id));
       expect(game.state.status).toBe('IN_PROGRESS');
+    });
+    test('if the game is WAITING_TO_START and the only unready player leaves and there is only one player, the game status is WAITING_FOR_PLAYERS', () => {
+      const player1 = players[0];
+      const player2 = players[1];
+      game.join(player1);
+      game.join(player2);
+      expect(game.state.status).toBe('WAITING_TO_START');
+      expect(game.state.players).toContain(player1.id);
+      expect(game.state.players).toContain(player2.id);
+      game.leave(player1);
+      expect(game.state.status).toBe('WAITING_FOR_PLAYERS');
     });
   });
 
