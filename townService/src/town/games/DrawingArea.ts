@@ -26,10 +26,6 @@ export default class DrawingArea extends GameArea<DrawingGame> {
     player: Player,
   ): InteractableCommandReturnType<CommandType> {
     if (command.type === 'SaveDrawing') {
-      const { drawing } = command;
-      if (!drawing) {
-        throw new InvalidParametersError('No drawing to save');
-      }
       this.game.applyMove({
         playerID: player.id,
         gameID: this.game?.id,
