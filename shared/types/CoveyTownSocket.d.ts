@@ -220,7 +220,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand | SaveDrawingCommand | ToggleModeCommand;
+export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand | SaveDrawingCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -240,10 +240,6 @@ export interface StartGameCommand {
 export interface SaveDrawingCommand {
   type: 'SaveDrawing';
   drawing: Drawing;
-}
-
-export interface ToggleModeCommand {
-  type: 'ToggleMode';
 }
 
 export interface GameMoveCommand<MoveType> {
