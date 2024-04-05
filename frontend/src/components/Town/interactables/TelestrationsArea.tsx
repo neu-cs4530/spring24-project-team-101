@@ -123,8 +123,10 @@ export default function TelestrationsArea({
       gameStatusStr = 'over';
     }
     //may want to add option to display chains that were created
-    else if (gameStatus === 'WAITING_FOR_PLAYERS') gameStatusStr = 'waiting for players to join';
-    else if (gameStatus === 'WAITING_TO_START')
+    else if (gameStatus === 'WAITING_FOR_PLAYERS') {
+      gameStatusStr = 'waiting for players to join';
+      gameActionButton = joinGameButton;
+    } else if (gameStatus === 'WAITING_TO_START')
       gameStatusStr = 'waiting for players to press start, more players may still join';
     gameStatusText = (
       <b>
