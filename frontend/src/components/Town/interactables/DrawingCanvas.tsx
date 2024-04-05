@@ -5,6 +5,7 @@ import { CirclePicker, ColorResult } from 'react-color';
 import InteractableAreaController from '../../../classes/interactable/InteractableAreaController';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
+import { nanoid } from 'nanoid';
 
 export type DrawingCanvasProps = {
   drawingAreaController?: DrawingAreaController;
@@ -75,6 +76,24 @@ export default function DrawingCanvas({
         }}>
         Size down
       </Button>
+      {telestrations ? (
+        <Button
+          onClick={() =>
+            telestrationsAreaController?.makeMove({
+              exit: () => {},
+              save: () => {},
+              authorID: 'TELESTRATIONS-GENERATED',
+              drawingID: nanoid(),
+              userDrawing: canvasRef.current.getDataURL('png', false, '#ffffff'),
+              length: 100,
+              width: 100,
+            })
+          }>
+          Submit
+        </Button>
+      ) : (
+        <></>
+      )}
       {telestrations ? (
         <></>
       ) : (

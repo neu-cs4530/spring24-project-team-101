@@ -71,7 +71,10 @@ export default class TelestrationsAreaController extends GameAreaController<
         move: {
           gamePiece: 'STUB',
           action: 'DRAW',
-          drawing: input,
+          drawing: {
+            ...input,
+            authorID: this._townController.ourPlayer.id,
+          },
         },
       });
       return;
@@ -133,7 +136,9 @@ export default class TelestrationsAreaController extends GameAreaController<
         player => player === this._townController.ourPlayer.id,
       );
       const activeChain = this._model.game?.state.activeChains[playerNumber];
-      return this._chains.length > activeChain ? this._chains[activeChain] : undefined;
+      return this._model.game.state.chains.length > activeChain
+        ? [...this._model.game.state.chains[activeChain]]
+        : undefined;
     } else {
       return undefined;
     }
@@ -147,7 +152,7 @@ export default class TelestrationsAreaController extends GameAreaController<
     if (chain && chain.length > 0) {
       if (chain[chain.length - 1].word) {
         return chain[chain.length - 1].word;
-      } else {
+      } else if (chain.length > 1) {
         return chain[chain.length - 2].word;
       }
     }
@@ -162,7 +167,7 @@ export default class TelestrationsAreaController extends GameAreaController<
     if (chain && chain.length > 0) {
       if (chain[chain.length - 1].drawing) {
         return chain[chain.length - 1].drawing;
-      } else {
+      } else if (chain.length > 1) {
         return chain[chain.length - 2].drawing;
       }
     }

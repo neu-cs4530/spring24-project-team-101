@@ -170,7 +170,7 @@ export default function TelestrationsArea({
     currentPhaseComponent = (
       // TODO: fix this
       <div>
-        <Image src={gameAreaController.drawing?.userDrawing}></Image>
+        <Image src={gameAreaController.imageToGuess?.userDrawing}></Image>
         <Input placeholder='Enter your guess:' onChange={onChange}></Input>
         <Button onClick={onSubmit}>Submit</Button>
       </div>
