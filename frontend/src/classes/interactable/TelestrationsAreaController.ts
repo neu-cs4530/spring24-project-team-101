@@ -175,6 +175,13 @@ export default class TelestrationsAreaController extends GameAreaController<
   }
 
   /**
+   * At the end of the game, the player should be able to see the progression of their word.
+   */
+  get ourChain(): TelestrationsMove[] | undefined {
+    return this._currentChain();
+  }
+
+  /**
    * Sends a request to the server to start the game.
    *
    * If the game is not in the WAITING_TO_START state, throws an error.

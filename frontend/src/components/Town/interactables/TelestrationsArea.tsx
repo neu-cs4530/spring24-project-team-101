@@ -134,8 +134,43 @@ export default function TelestrationsArea({
   }
   // Now, modify the conditional rendering to use `hasJoinedGame` to decide which button to show
   let currentPhaseComponent = <></>;
-  if (!gameAreaController.isOurTurn) {
+  if (!gameAreaController.isOurTurn && gameStatus !== 'OVER') {
     currentPhaseComponent = <>... already submitted</>;
+  } else if (gameStatus === 'OVER') {
+    const chain = gameAreaController.ourChain;
+    if (chain) {
+      gameStatusText = <b>Game over! Here is your word:</b>;
+
+      const chainComponents = chain.map(move => {
+        if (move.word) {
+          return <b>{move.word}</b>;
+        } else if (move.drawing) {
+          return <Image src={move.drawing.userDrawing}></Image>;
+        }
+      });
+      const joinGameButton = (
+        <Button
+          onClick={async () => {
+            setJoiningGame(true);
+            try {
+              await gameAreaController.joinGame();
+              setHasJoinedGame(true); // Update state to reflect the user has joined the game
+            } catch (err) {
+              toast({
+                title: 'Error joining game',
+                description: (err as Error).toString(),
+                status: 'error',
+              });
+            }
+            setJoiningGame(false);
+          }}
+          isLoading={joiningGame}
+          disabled={joiningGame}>
+          Join New Game
+        </Button>
+      );
+      currentPhaseComponent = <div>{chainComponents.concat(joinGameButton)}</div>;
+    }
   } else if (gamePhase === 'PICK_WORD') {
     //has to get implemented in the controller in some way
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {

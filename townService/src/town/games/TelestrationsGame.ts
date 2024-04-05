@@ -27,7 +27,7 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    *
    * For now, no options. Perhaps MINIMUM_PLAYERS should be supplied here?
    */
-  public constructor() {
+  public constructor(players?: PlayerID[]) {
     super({
       status: 'WAITING_FOR_PLAYERS',
       players: [],
