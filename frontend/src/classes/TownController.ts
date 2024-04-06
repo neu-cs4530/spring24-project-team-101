@@ -31,6 +31,7 @@ import {
   isConnectFourArea,
   isConversationArea,
   isDrawingArea,
+  isTelestrationsArea,
   isTicTacToeArea,
   isViewingArea,
 } from '../types/TypeUtils';
@@ -42,6 +43,7 @@ import InteractableAreaController, {
   BaseInteractableEventMap,
   GenericInteractableAreaController,
 } from './interactable/InteractableAreaController';
+import TelestrationsAreaController from './interactable/TelestrationsAreaController';
 import TicTacToeAreaController from './interactable/TicTacToeAreaController';
 import ViewingAreaController from './interactable/ViewingAreaController';
 import PlayerController from './PlayerController';
@@ -512,7 +514,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     command: CommandType,
   ): Promise<InteractableCommandResponse<CommandType>['payload']> {
     const commandMessage: InteractableCommand & InteractableCommandBase = {
-      ...command,
+      ...(command as object),
       commandID: nanoid(),
       interactableID: interactableID,
     };
@@ -636,6 +638,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           } else if (isDrawingArea(eachInteractable)) {
             this._interactableControllers.push(
               new DrawingAreaController(eachInteractable.id, eachInteractable, this),
+            );
+          } else if (isTelestrationsArea(eachInteractable)) {
+            this._interactableControllers.push(
+              new TelestrationsAreaController(eachInteractable.id, eachInteractable, this),
             );
           }
         });

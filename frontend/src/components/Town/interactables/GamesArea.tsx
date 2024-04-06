@@ -28,6 +28,7 @@ import ConnectFourArea from './ConnectFour/ConnectFourArea';
 import DrawingsArea from './DrawingsArea';
 import GameAreaInteractable from './GameArea';
 import Leaderboard from './Leaderboard';
+import TelestrationsArea from './TelestrationsArea';
 import TicTacToeArea from './TicTacToe/TicTacToeArea';
 
 export const INVALID_GAME_AREA_TYPE_MESSAGE = 'Invalid game area type';
@@ -104,6 +105,8 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
             <TicTacToeArea interactableID={interactableID} />
           ) : gameAreaController.toInteractableAreaModel().type === 'DrawingArea' ? (
             <DrawingsArea interactableID={interactableID} />
+          ) : gameAreaController.toInteractableAreaModel().type === 'TelestrationsArea' ? (
+            <TelestrationsArea interactableID={interactableID} />
           ) : (
             <>{INVALID_GAME_AREA_TYPE_MESSAGE}</>
           )}

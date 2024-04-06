@@ -10,6 +10,7 @@ import { GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { nanoid } from 'nanoid';
 import { assert } from 'console';
+import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
 
 export type DrawingCanvasProps = {
   controller: GameAreaController<GameState, GameEventTypes>;
@@ -32,10 +33,12 @@ export default function DrawingCanvas({
     telestrations = false;
     // } else if (controller instanceof TelestrationsAreaController) {
     //   telestrations = true; controller instanceof DrawingAreaController
+  } else if (controller.toInteractableAreaModel().type === 'TelestrationsArea') {
+    telestrations = true;
   } else {
+    telestrations = false;
     throw new Error('Invalid controller type');
   }
-
   const canvas = new CanvasDraw({
     hideGrid: true,
     brushColor: color,
@@ -89,6 +92,38 @@ export default function DrawingCanvas({
         }}>
         Size down
       </Button>
+      {telestrations ? (
+        <Button
+          onClick={async () => {
+            setLoading(true);
+            const drawingData = {
+              exit: () => {},
+              save: () => {},
+              authorID: 'TELESTRATIONS-GENERATED',
+              drawingID: nanoid(),
+              userDrawing: canvasRef.current.getDataURL('png', false, '#ffffff'),
+              length: 100,
+              width: 100,
+            };
+            try {
+              await (controller as TelestrationsAreaController).makeMove(drawingData);
+              // Handle success (e.g., show a success message or update the state accordingly)
+            } catch (err) {
+              toast({
+                title: 'Error during makeMove operation',
+                description: (err as Error).toString(),
+                status: 'error',
+              });
+            }
+            setLoading(false);
+          }}
+          isLoading={loading}
+          disabled={loading}>
+          Submit
+        </Button>
+      ) : (
+        <></>
+      )}
       {telestrations ? (
         <></>
       ) : (

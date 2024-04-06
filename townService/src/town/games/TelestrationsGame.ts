@@ -27,7 +27,7 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    *
    * For now, no options. Perhaps MINIMUM_PLAYERS should be supplied here?
    */
-  public constructor() {
+  public constructor(players?: PlayerID[]) {
     super({
       status: 'WAITING_FOR_PLAYERS',
       players: [],
@@ -88,6 +88,12 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
     }
     if (this.state.status === 'WAITING_TO_START') {
       this._removePlayer(player);
+      if (this.state.players.length < MINIMUM_PLAYERS) {
+        this.state = {
+          ...this.state,
+          status: 'WAITING_FOR_PLAYERS',
+        };
+      }
       this._startGame();
     } else if (this.state.status === 'IN_PROGRESS') {
       this.state = {
@@ -290,6 +296,7 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    * @param player the player
    */
   private _removePlayer(player: Player): void {
+    console.log(`Removing player ${player.id} from game `);
     this.state = {
       ...this.state,
       players: this.state.players.filter(playerInGame => playerInGame !== player.id),
