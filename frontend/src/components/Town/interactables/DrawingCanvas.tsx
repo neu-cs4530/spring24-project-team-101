@@ -1,27 +1,36 @@
-import { Button } from '@chakra-ui/react';
+import { Button, useToast } from '@chakra-ui/react';
 import React, { useRef, useState } from 'react';
 import CanvasDraw from './react-canvas-draw/src/index';
 import { CirclePicker, ColorResult } from 'react-color';
-import InteractableAreaController from '../../../classes/interactable/InteractableAreaController';
+import GameAreaController, {
+  GameEventTypes,
+} from '../../../classes/interactable/GameAreaController';
+import { GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
-import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
 import { nanoid } from 'nanoid';
+import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
 
 export type DrawingCanvasProps = {
-  drawingAreaController?: DrawingAreaController;
-  telestrationsAreaController?: TelestrationsAreaController;
-  telestrations?: boolean;
+  controller: GameAreaController<GameState, GameEventTypes>;
+  authorID: string;
 };
 
-export default function DrawingCanvas({
-  drawingAreaController = undefined,
-  telestrationsAreaController = undefined,
-  telestrations = false,
-}: DrawingCanvasProps): JSX.Element {
+export default function DrawingCanvas({ controller, authorID }: DrawingCanvasProps): JSX.Element {
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
   const [saveData, setSaveData] = useState('');
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
+
+  let telestrations: boolean;
+  if (controller.toInteractableAreaModel().type === 'DrawingArea') {
+    telestrations = false;
+    // } else if (controller.toInteractableAreaModel().type === 'TelestrationsArea') {
+    //   telestrations = true;
+  } else {
+    throw new Error('Invalid controller type');
+  }
 
   const canvas = new CanvasDraw({
     hideGrid: true,
@@ -79,9 +88,7 @@ export default function DrawingCanvas({
       {telestrations ? (
         <Button
           onClick={() =>
-            telestrationsAreaController?.makeMove({
-              exit: () => {},
-              save: () => {},
+            (controller as TelestrationsAreaController).makeMove({
               authorID: 'TELESTRATIONS-GENERATED',
               drawingID: nanoid(),
               userDrawing: canvasRef.current.getDataURL('png', false, '#ffffff'),
@@ -135,12 +142,51 @@ export default function DrawingCanvas({
         <></>
       ) : (
         <Button
-          onClick={() => {
+          onClick={async () => {
+            setLoading(true);
             const url = canvasRef.current.getDataURL('png', false, '#ffffff');
-            console.log('send image to gallery not implemented');
-          }}>
+            try {
+              await (controller as DrawingAreaController).makeMove({
+                drawingID: nanoid(),
+                authorID,
+                userDrawing: url,
+              });
+            } catch (err) {
+              toast({
+                title: 'Error sending image to gallery',
+                description: (err as Error).toString(),
+                status: 'error',
+              });
+            }
+            setLoading(false);
+          }}
+          isLoading={loading}
+          disabled={loading}>
           Send to gallery
         </Button>
+      )}
+      {telestrations ? (
+        <Button
+          onClick={async () => {
+            setLoading(true);
+            const url = canvasRef.current.getDataURL('png', false, '#ffffff');
+            try {
+              // call telestrations controller makeMove
+            } catch (err) {
+              toast({
+                title: 'Error submitting drawing',
+                description: (err as Error).toString(),
+                status: 'error',
+              });
+            }
+            setLoading(false);
+          }}
+          isLoading={loading}
+          disabled={loading}>
+          Submit drawing
+        </Button>
+      ) : (
+        <></>
       )}
     </div>
   );
