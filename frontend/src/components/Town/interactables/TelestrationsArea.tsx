@@ -61,10 +61,12 @@ export default function TelestrationsArea({
   let gameStatusText = <></>;
   if (gameStatus === 'IN_PROGRESS') {
     gameStatusText = (
-      <>
-        Game in progress, currently{' '}
-        {gameAreaController.isOurTurn ? 'your turn' : 'you have already submitted'}
-      </>
+      <p>
+        <b>
+          Game in progress, currently{' '}
+          {gameAreaController.isOurTurn ? 'your turn' : 'you have already submitted'}{' '}
+        </b>
+      </p>
     );
   } else {
     const joinGameButton = (
@@ -115,7 +117,9 @@ export default function TelestrationsArea({
       gameActionButton = joinGameButton;
     } else if (gameStatus === 'WAITING_TO_START' && hasJoinedGame) {
       gameActionButton = startGameButton;
-    } // Add other conditions as needed
+    } else {
+      gameActionButton = <></>; // Add other conditions as needed
+    }
     let gameStatusStr;
     if (gameStatus === 'OVER') {
       console.log(gameStatus);
@@ -128,19 +132,20 @@ export default function TelestrationsArea({
     } else if (gameStatus === 'WAITING_TO_START')
       gameStatusStr = 'waiting for players to press start, more players may still join';
     gameStatusText = (
-      <b>
-        Game {gameStatusStr}. {gameActionButton}
-      </b>
+      <>
+        <b>Game {gameStatusStr}.</b>
+        <p>{gameActionButton}</p>
+      </>
     );
   }
   // Now, modify the conditional rendering to use `hasJoinedGame` to decide which button to show
   let currentPhaseComponent = <></>;
-  if (!gameAreaController.isOurTurn && gameStatus !== 'OVER') {
-    currentPhaseComponent = <>... already submitted</>;
+  if (!gameAreaController.isOurTurn && gameStatus === 'IN_PROGRESS') {
+    currentPhaseComponent = <></>;
   } else if (gameStatus === 'OVER') {
     const chain = gameAreaController.ourChain;
     if (chain) {
-      gameStatusText = <b>Game over! Here is your word:</b>;
+      gameStatusText = <b>Game over! Here{"'"}s where your word started:</b>;
 
       const chainComponents = chain.map(move => {
         if (move.word) {
@@ -170,9 +175,14 @@ export default function TelestrationsArea({
           Join New Game
         </Button>
       );
-      currentPhaseComponent = <div>{chainComponents.concat(joinGameButton)}</div>;
+      currentPhaseComponent = (
+        <div>
+          <>{chainComponents}</>
+          <p>{joinGameButton}</p>
+        </div>
+      );
     }
-  } else if (gamePhase === 'PICK_WORD') {
+  } else if (gameStatus === 'IN_PROGRESS' && gamePhase === 'PICK_WORD') {
     //has to get implemented in the controller in some way
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {
       setInputVal(event.target.value);
@@ -227,14 +237,18 @@ export default function TelestrationsArea({
 
   return (
     <>
+      {gameStatus === 'OVER' ? (
+        <></>
+      ) : (
+        <List aria-label='list of players in the game'>
+          {listOfPlayers.map((player, index) => (
+            <ListItem key={player.userName}>
+              Player {index}: {player.userName}
+            </ListItem>
+          ))}
+        </List>
+      )}
       {gameStatusText}
-      <List aria-label='list of players in the game'>
-        {listOfPlayers.map((player, index) => (
-          <ListItem key={player.userName}>
-            Player {index}: {player.userName}
-          </ListItem>
-        ))}
-      </List>
       {currentPhaseComponent}
     </>
   );
