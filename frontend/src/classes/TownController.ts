@@ -1,9 +1,8 @@
 import assert from 'assert';
-import { generateKey } from 'crypto';
 import EventEmitter from 'events';
 import _ from 'lodash';
 import { nanoid } from 'nanoid';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
@@ -30,11 +29,13 @@ import {
 import {
   isConnectFourArea,
   isConversationArea,
+  isDrawingArea,
   isTicTacToeArea,
   isViewingArea,
 } from '../types/TypeUtils';
 import ConnectFourAreaController from './interactable/ConnectFourAreaController';
 import ConversationAreaController from './interactable/ConversationAreaController';
+import DrawingAreaController from './interactable/DrawingAreaController';
 import GameAreaController, { GameEventTypes } from './interactable/GameAreaController';
 import InteractableAreaController, {
   BaseInteractableEventMap,
@@ -630,6 +631,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           } else if (isConnectFourArea(eachInteractable)) {
             this._interactableControllers.push(
               new ConnectFourAreaController(eachInteractable.id, eachInteractable, this),
+            );
+          } else if (isDrawingArea(eachInteractable)) {
+            this._interactableControllers.push(
+              new DrawingAreaController(eachInteractable.id, eachInteractable, this),
             );
           }
         });

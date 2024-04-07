@@ -74,10 +74,6 @@ export interface ViewingArea extends Interactable {
   elapsedTimeSec: number;
 }
 
-export interface DrawingArea extends Interactable {
-  drawing?: Drawing;
-}
-
 export type GameStatus = 'IN_PROGRESS' | 'WAITING_TO_START' | 'OVER' | 'WAITING_FOR_PLAYERS';
 /**
  * Base type for the state of a game
@@ -168,6 +164,10 @@ export type ConnectFourColor = 'Red' | 'Yellow';
 export type InteractableID = string;
 export type GameInstanceID = string;
 
+export interface DrawingGameState extends GameState {
+  drawings: ReadonlyArray<Drawing>;
+}
+
 /**
  * Type for the result of a game
  */
@@ -220,7 +220,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
-export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand | SaveDrawingCommand | ExitDrawingCommand;
+export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | StartGameCommand | LeaveGameCommand | SaveDrawingCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
   update: ViewingArea;
@@ -242,10 +242,6 @@ export interface SaveDrawingCommand {
   drawing: Drawing;
 }
 
-export interface ExitDrawingCommand {
-  type: 'ExitDrawing';
-  drawing: Drawing;
-}
 export interface GameMoveCommand<MoveType> {
   type: 'GameMove';
   gameID: GameInstanceID;
@@ -285,8 +281,6 @@ export interface ClientToServerEvents {
 }
 
 export type Drawing = {
-  exit(): unknown;
-  save(): unknown;
   drawingID: string,
   authorID: string,
   /**
@@ -295,8 +289,8 @@ export type Drawing = {
    * 
    *  The drawing library will scale images to fit new dimensions, but we may not wish to allow that.
    */    
-  length: number,
-  width: number,
+  length?: number,
+  width?: number,
 
   metadata?: {
       // Support arbitrary metadata, since we probably won't need to use it very often.

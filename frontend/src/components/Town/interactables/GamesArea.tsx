@@ -24,6 +24,7 @@ import useTownController from '../../../hooks/useTownController';
 import { GameResult, InteractableID } from '../../../types/CoveyTownSocket';
 import ChatChannel from './ChatChannel';
 import ConnectFourArea from './ConnectFour/ConnectFourArea';
+import DrawingsArea from './DrawingsArea';
 import GameAreaInteractable from './GameArea';
 import Leaderboard from './Leaderboard';
 import TicTacToeArea from './TicTacToe/TicTacToeArea';
@@ -100,6 +101,8 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
             <ConnectFourArea interactableID={interactableID} />
           ) : gameAreaController.toInteractableAreaModel().type === 'TicTacToeArea' ? (
             <TicTacToeArea interactableID={interactableID} />
+          ) : gameAreaController.toInteractableAreaModel().type === 'DrawingArea' ? (
+            <DrawingsArea interactableID={interactableID} />
           ) : (
             <>{INVALID_GAME_AREA_TYPE_MESSAGE}</>
           )}
