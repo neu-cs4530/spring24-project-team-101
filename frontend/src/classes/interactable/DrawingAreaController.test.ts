@@ -4,9 +4,7 @@ import { Drawing, DrawingGameState, GameArea, PlayerLocation } from '../../types
 import { DrawingEvents } from './DrawingAreaController';
 import PlayerController from '../PlayerController';
 import DrawingAreaController from './DrawingAreaController';
-import TownController from '../TownController';
 import { mockTownController } from '../../TestUtils';
-import DrawingsArea from '../../components/Town/interactables/DrawingsArea';
 
 describe('[T2] DrawingAreaController', () => {
   // A valid ConversationAreaController to be reused within the tests

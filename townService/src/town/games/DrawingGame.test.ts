@@ -1,6 +1,5 @@
 import { nanoid } from 'nanoid';
 import { createPlayerForTesting } from '../../TestUtils';
-import { Drawing } from '../../types/CoveyTownSocket';
 import DrawingGame from './DrawingGame';
 
 const makeDrawing = (str: string) => ({
