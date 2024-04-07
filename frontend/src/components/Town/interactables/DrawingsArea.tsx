@@ -1,5 +1,5 @@
 import { Button, Image, List, ListItem } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import DrawingAreaController, {
   useDrawings,
 } from '../../../classes/interactable/DrawingAreaController';

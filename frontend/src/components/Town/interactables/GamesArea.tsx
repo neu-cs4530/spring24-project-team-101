@@ -17,7 +17,6 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { GenericGameAreaController } from '../../../classes/interactable/GameAreaController';
 import PlayerController from '../../../classes/PlayerController';
 import { useInteractable, useInteractableAreaController } from '../../../classes/TownController';

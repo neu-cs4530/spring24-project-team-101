@@ -5,11 +5,9 @@ import { CirclePicker, ColorResult } from 'react-color';
 import GameAreaController, {
   GameEventTypes,
 } from '../../../classes/interactable/GameAreaController';
-import TownController from '../../../classes/TownController';
 import { GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { nanoid } from 'nanoid';
-import { assert } from 'console';
 
 export type DrawingCanvasProps = {
   controller: GameAreaController<GameState, GameEventTypes>;

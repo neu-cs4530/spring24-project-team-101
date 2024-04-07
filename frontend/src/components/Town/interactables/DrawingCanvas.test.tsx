@@ -1,13 +1,10 @@
 import DrawingCanvas from './DrawingCanvas';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import TownController from '../../../classes/TownController';
 import { mock, mockClear } from 'jest-mock-extended';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
-import PlayerController from '../../../classes/PlayerController';
 import { nanoid } from 'nanoid';
 import { Drawing } from '../../../../../shared/types/CoveyTownSocket';
-import { mockTownController } from '../../../TestUtils';
 
 const mockToast = jest.fn();
 jest.mock('@chakra-ui/react', () => {
