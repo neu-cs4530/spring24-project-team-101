@@ -139,6 +139,7 @@ export default function GameAreaWrapper(): JSX.Element {
   const townController = useTownController();
   const closeModal = useCallback(() => {
     if (gameArea) {
+      townController.unPause();
       townController.interactEnd(gameArea);
       const controller = townController.getGameAreaController(gameArea);
       controller.leaveGame();

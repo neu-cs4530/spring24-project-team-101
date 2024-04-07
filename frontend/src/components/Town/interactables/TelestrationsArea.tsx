@@ -53,7 +53,6 @@ export default function TelestrationsArea({
     };
     gameAreaController.addListener('gameUpdated', updateGameState);
     gameAreaController.addListener('gameEnd', onGameEnd);
-    //*CONTROLLER DETERMINES WHOSE TURN IT IS
     return () => {
       gameAreaController.removeListener('gameUpdated', updateGameState);
       gameAreaController.removeListener('gameEnd', onGameEnd);
@@ -179,11 +178,17 @@ export default function TelestrationsArea({
       setInputVal(event.target.value);
     };
     const onSubmit = () => {
+      townController.unPause();
       gameAreaController.makeMove(inputVal);
     };
     currentPhaseComponent = (
       <div>
-        <Input placeholder='Enter your word:' onChange={onChange}></Input>
+        <Input
+          placeholder='Enter your word:'
+          onChange={onChange}
+          onClick={() => {
+            townController.pause();
+          }}></Input>
         <Button onClick={onSubmit}>Submit</Button>
       </div>
     );
@@ -202,13 +207,19 @@ export default function TelestrationsArea({
       setInputVal(event.target.value);
     };
     const onSubmit = () => {
+      townController.unPause();
       gameAreaController.makeMove(inputVal);
     };
     currentPhaseComponent = (
       // TODO: fix this
       <div>
         <Image src={gameAreaController.imageToGuess?.userDrawing}></Image>
-        <Input placeholder='Enter your guess:' onChange={onChange}></Input>
+        <Input
+          placeholder='Enter your guess:'
+          onChange={onChange}
+          onClick={() => {
+            townController.pause();
+          }}></Input>
         <Button onClick={onSubmit}>Submit</Button>
       </div>
     );
