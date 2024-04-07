@@ -4,7 +4,6 @@ import {
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableType,
-  SaveDrawingCommand,
 } from '../../types/CoveyTownSocket';
 import DrawingGame from './DrawingGame';
 import GameArea from './GameArea';
