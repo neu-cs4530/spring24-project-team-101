@@ -24,10 +24,10 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
   const toast = useToast();
 
   let telestrations: boolean;
-  const areaModel = controller.toInteractableAreaModel(); // Assuming this is async
-  if (areaModel.type === 'DrawingArea') {
+  const controllerType = controller.toInteractableAreaModel().type;
+  if (controllerType === 'DrawingArea') {
     telestrations = false;
-  } else if (areaModel.type === 'TelestrationsArea') {
+  } else if (controllerType === 'TelestrationsArea') {
     telestrations = true;
   } else {
     throw new Error('Invalid controller type');
@@ -88,15 +88,26 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       </Button>
       {telestrations ? (
         <Button
-          onClick={() =>
-            (controller as TelestrationsAreaController).makeMove({
-              authorID: 'TELESTRATIONS-GENERATED',
-              drawingID: nanoid(),
-              userDrawing: canvasRef.current.getDataURL('png', false, '#ffffff'),
-              length: 100,
-              width: 100,
-            })
-          }>
+          onClick={async () => {
+            setLoading(true);
+            const url = canvasRef.current.getDataURL('png', false, '#ffffff');
+            try {
+              await (controller as TelestrationsAreaController).makeMove({
+                drawingID: nanoid(),
+                authorID,
+                userDrawing: url,
+              });
+            } catch (err) {
+              toast({
+                title: 'Error submitting drawing',
+                description: (err as Error).toString(),
+                status: 'error',
+              });
+            }
+            setLoading(false);
+          }}
+          isLoading={loading}
+          disabled={loading}>
           Submit
         </Button>
       ) : (
@@ -165,29 +176,6 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
           disabled={loading}>
           Send to gallery
         </Button>
-      )}
-      {telestrations ? (
-        <Button
-          onClick={async () => {
-            setLoading(true);
-            const url = canvasRef.current.getDataURL('png', false, '#ffffff');
-            try {
-              // call telestrations controller makeMove
-            } catch (err) {
-              toast({
-                title: 'Error submitting drawing',
-                description: (err as Error).toString(),
-                status: 'error',
-              });
-            }
-            setLoading(false);
-          }}
-          isLoading={loading}
-          disabled={loading}>
-          Submit drawing
-        </Button>
-      ) : (
-        <></>
       )}
     </div>
   );
