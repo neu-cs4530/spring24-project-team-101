@@ -63,7 +63,7 @@ export default function DrawingsArea({
     displayComponent = (
       <DrawingCanvas
         controller={gameAreaController}
-        townController={townController}></DrawingCanvas>
+        authorID={townController.ourPlayer.id}></DrawingCanvas>
     );
   }
 

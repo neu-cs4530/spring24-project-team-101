@@ -13,13 +13,10 @@ import { assert } from 'console';
 
 export type DrawingCanvasProps = {
   controller: GameAreaController<GameState, GameEventTypes>;
-  townController: TownController;
+  authorID: string;
 };
 
-export default function DrawingCanvas({
-  controller,
-  townController,
-}: DrawingCanvasProps): JSX.Element {
+export default function DrawingCanvas({ controller, authorID }: DrawingCanvasProps): JSX.Element {
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
@@ -136,7 +133,7 @@ export default function DrawingCanvas({
             try {
               await (controller as DrawingAreaController).makeMove({
                 drawingID: nanoid(),
-                authorID: townController.ourPlayer.id,
+                authorID,
                 userDrawing: url,
               });
             } catch (err) {
