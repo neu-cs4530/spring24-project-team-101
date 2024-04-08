@@ -5,7 +5,7 @@ import { CirclePicker, ColorResult } from 'react-color';
 import GameAreaController, {
   GameEventTypes,
 } from '../../../classes/interactable/GameAreaController';
-import { Drawing, GameState } from '../../../types/CoveyTownSocket';
+import { GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { nanoid } from 'nanoid';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
