@@ -637,6 +637,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           } else if (isTelestrationsArea(eachInteractable)) {
             this._interactableControllers.push(
               new TelestrationsAreaController(eachInteractable.id, eachInteractable, this),
+            );
           } else if (isDrawingArea(eachInteractable)) {
             this._interactableControllers.push(
               new DrawingAreaController(eachInteractable.id, eachInteractable, this),
