@@ -38,17 +38,17 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
     {
       id: 'frame1',
       label: 'Classic Frame',
-      imageUrl: '/images/pngtree-metallic-gold-picture-frame-3d-png-image_1046287.2.jpeg',
+      imageUrl: '/images/rsz_pngtree-metallic-gold-picture-frame-3d-png-image_10462872.png',
     },
     {
       id: 'frame2',
       label: 'Classic Frame',
-      imageUrl: '/images/pngtree-metallic-gold-picture-frame-3d-png-image_1046287.2.jpeg',
+      imageUrl: '/images/rsz_pngtree-metallic-gold-picture-frame-3d-png-image_10462872.png',
     },
     {
       id: 'frame3',
       label: 'Classic Frame',
-      imageUrl: '/images/pngtree-metallic-gold-picture-frame-3d-png-image_1046287.2.jpeg',
+      imageUrl: '/images/rsz_pngtree-metallic-gold-picture-frame-3d-png-image_10462872.png',
     },
   ];
 
