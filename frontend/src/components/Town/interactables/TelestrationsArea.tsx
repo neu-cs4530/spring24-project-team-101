@@ -2,13 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import PlayerController from '../../../classes/PlayerController';
 import { useInteractableAreaController } from '../../../classes/TownController';
 import useTownController from '../../../hooks/useTownController';
-import {
-  Drawing,
-  GameStatus,
-  InteractableID,
-  TelestrationsAction,
-  TelestrationsMove,
-} from '../../../types/CoveyTownSocket';
+import { GameStatus, InteractableID, TelestrationsAction } from '../../../types/CoveyTownSocket';
 import { Button, Input, List, ListItem, useToast, Image } from '@chakra-ui/react';
 import DrawingCanvas from './DrawingCanvas';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
@@ -32,9 +26,6 @@ export default function TelestrationsArea({
   const [gameStatus, setGameStatus] = useState<GameStatus>(gameAreaController.status);
   const [gamePhase, setGamePhase] = useState<TelestrationsAction>(gameAreaController.gamePhase);
   const [wordToDraw, setWordToDraw] = useState<string | undefined>(gameAreaController.wordToDraw);
-  const [imageToGuess, setImageToGuess] = useState<Drawing | undefined>(
-    gameAreaController.imageToGuess,
-  );
   const toast = useToast();
   useEffect(() => {
     const updateGameState = () => {
@@ -42,7 +33,6 @@ export default function TelestrationsArea({
       setGamePhase(gameAreaController.gamePhase || 'PICK_WORD');
       setListOfPlayers(gameAreaController.players);
       setWordToDraw(gameAreaController.wordToDraw || '');
-      setImageToGuess(gameAreaController.imageToGuess);
     };
     const onGameEnd = () => {
       toast({
@@ -53,7 +43,6 @@ export default function TelestrationsArea({
     };
     gameAreaController.addListener('gameUpdated', updateGameState);
     gameAreaController.addListener('gameEnd', onGameEnd);
-    //*CONTROLLER DETERMINES WHOSE TURN IT IS
     return () => {
       gameAreaController.removeListener('gameUpdated', updateGameState);
       gameAreaController.removeListener('gameEnd', onGameEnd);
@@ -62,10 +51,12 @@ export default function TelestrationsArea({
   let gameStatusText = <></>;
   if (gameStatus === 'IN_PROGRESS') {
     gameStatusText = (
-      <>
-        Game in progress, currently{' '}
-        {gameAreaController.isOurTurn ? 'your turn' : 'you have already submitted'}
-      </>
+      <p>
+        <b>
+          Game in progress, currently{' '}
+          {gameAreaController.isOurTurn ? 'your turn' : 'you have already submitted'}{' '}
+        </b>
+      </p>
     );
   } else {
     const joinGameButton = (
@@ -116,7 +107,9 @@ export default function TelestrationsArea({
       gameActionButton = joinGameButton;
     } else if (gameStatus === 'WAITING_TO_START' && hasJoinedGame) {
       gameActionButton = startGameButton;
-    } // Add other conditions as needed
+    } else {
+      gameActionButton = <></>; // Add other conditions as needed
+    }
     let gameStatusStr;
     if (gameStatus === 'OVER') {
       console.log(gameStatus);
@@ -129,19 +122,20 @@ export default function TelestrationsArea({
     } else if (gameStatus === 'WAITING_TO_START')
       gameStatusStr = 'waiting for players to press start, more players may still join';
     gameStatusText = (
-      <b>
-        Game {gameStatusStr}. {gameActionButton}
-      </b>
+      <>
+        <b>Game {gameStatusStr}.</b>
+        <p>{gameActionButton}</p>
+      </>
     );
   }
   // Now, modify the conditional rendering to use `hasJoinedGame` to decide which button to show
   let currentPhaseComponent = <></>;
-  if (!gameAreaController.isOurTurn && gameStatus !== 'OVER') {
-    currentPhaseComponent = <>... already submitted</>;
+  if (!gameAreaController.isOurTurn && gameStatus === 'IN_PROGRESS') {
+    currentPhaseComponent = <></>;
   } else if (gameStatus === 'OVER') {
     const chain = gameAreaController.ourChain;
     if (chain) {
-      gameStatusText = <b>Game over! Here is your word:</b>;
+      gameStatusText = <b>Game over! Here{"'"}s where your word started:</b>;
 
       const chainComponents = chain.map(move => {
         if (move.word) {
@@ -171,19 +165,30 @@ export default function TelestrationsArea({
           Join New Game
         </Button>
       );
-      currentPhaseComponent = <div>{chainComponents.concat(joinGameButton)}</div>;
+      currentPhaseComponent = (
+        <div>
+          <>{chainComponents}</>
+          <p>{joinGameButton}</p>
+        </div>
+      );
     }
-  } else if (gamePhase === 'PICK_WORD') {
+  } else if (gameStatus === 'IN_PROGRESS' && gamePhase === 'PICK_WORD') {
     //has to get implemented in the controller in some way
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {
       setInputVal(event.target.value);
     };
     const onSubmit = () => {
+      townController.unPause();
       gameAreaController.makeMove(inputVal);
     };
     currentPhaseComponent = (
       <div>
-        <Input placeholder='Enter your word:' onChange={onChange}></Input>
+        <Input
+          placeholder='Enter your word:'
+          onChange={onChange}
+          onClick={() => {
+            townController.pause();
+          }}></Input>
         <Button onClick={onSubmit}>Submit</Button>
       </div>
     );
@@ -202,13 +207,19 @@ export default function TelestrationsArea({
       setInputVal(event.target.value);
     };
     const onSubmit = () => {
+      townController.unPause();
       gameAreaController.makeMove(inputVal);
     };
     currentPhaseComponent = (
       // TODO: fix this
       <div>
         <Image src={gameAreaController.imageToGuess?.userDrawing}></Image>
-        <Input placeholder='Enter your guess:' onChange={onChange}></Input>
+        <Input
+          placeholder='Enter your guess:'
+          onChange={onChange}
+          onClick={() => {
+            townController.pause();
+          }}></Input>
         <Button onClick={onSubmit}>Submit</Button>
       </div>
     );
@@ -216,14 +227,18 @@ export default function TelestrationsArea({
 
   return (
     <>
+      {gameStatus === 'OVER' ? (
+        <></>
+      ) : (
+        <List aria-label='list of players in the game'>
+          {listOfPlayers.map((player, index) => (
+            <ListItem key={player.userName}>
+              Player {index}: {player.userName}
+            </ListItem>
+          ))}
+        </List>
+      )}
       {gameStatusText}
-      <List aria-label='list of players in the game'>
-        {listOfPlayers.map((player, index) => (
-          <ListItem key={player.userName}>
-            Player {index}: {player.userName}
-          </ListItem>
-        ))}
-      </List>
       {currentPhaseComponent}
     </>
   );

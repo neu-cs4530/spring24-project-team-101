@@ -1,8 +1,9 @@
 import DrawingCanvas from './DrawingCanvas';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, act } from '@testing-library/react';
 import React from 'react';
 import { mock, mockClear } from 'jest-mock-extended';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
+import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
 import { nanoid } from 'nanoid';
 import { Drawing } from '../../../../../shared/types/CoveyTownSocket';
 
@@ -21,9 +22,93 @@ describe('DrawingCanvas', () => {
     // TODO: test that the correct things are displayed when a
     // telestrationsareacontroller is passed in as the controller prop
     // see tests below for examples
-  });
+    const telestrationsController = mock<TelestrationsAreaController>();
+    const authorID = nanoid();
+    let makeMoveSpy: jest.SpyInstance<Promise<void>, [input: string | Drawing]>;
+    beforeEach(() => {
+      makeMoveSpy = jest.spyOn(telestrationsController, 'makeMove');
+      jest.spyOn(telestrationsController, 'toInteractableAreaModel').mockReturnValue({
+        game: {
+          state: {
+            status: 'IN_PROGRESS',
+            players: [],
+            chains: [],
+            playersReady: [],
+            gamePhase: 2, // Simulate being in phase 2
+            activeChains: [],
+          },
+          id: nanoid(),
+          players: [],
+        },
+        history: [],
+        type: 'TelestrationsArea',
+        id: nanoid(),
+        occupants: [],
+      });
+      render(<DrawingCanvas controller={telestrationsController} authorID={authorID} />);
+    });
+    afterEach(() => {
+      makeMoveSpy.mockClear();
+      cleanup();
+    });
+    describe('Basic elements present', () => {
+      it('should display a drawing canvas', () => {
+        // the library does not include any accessibility tags or really anything useful
+        // to identify the CanvasDraw component. it creates 4 <canvas> elements, but the test shouldn't rely on that
+        expect(document.getElementsByTagName('canvas').length).toBeGreaterThan(0);
+      });
 
-  describe('Drawing use case', () => {
+      it('should render all the buttons', () => {
+        const buttons = screen.getAllByRole('button');
+        expect(buttons.length).toEqual(4);
+      });
+    });
+    describe('Erasing', () => {
+      it('Should display an erase button', () => {
+        expect(screen.getAllByText('Erase')).toHaveLength(1);
+      });
+      it('should toggle erase mode when the erase button is clicked', () => {
+        const eraseToggle = screen.getByLabelText('toggle erase');
+        fireEvent.click(eraseToggle);
+
+        expect(screen.queryAllByText('Erase')).toHaveLength(0);
+        expect(screen.getAllByText('Draw')).toHaveLength(1);
+
+        fireEvent.click(eraseToggle);
+
+        expect(screen.getAllByText('Erase')).toHaveLength(1);
+        expect(screen.queryAllByText('Draw')).toHaveLength(0);
+      });
+    });
+    describe('Submitting drawing', () => {
+      it('Should display a button to submit to game', async () => {
+        expect(screen.getAllByText('Submit')).toHaveLength(1);
+        const sendGalleryButton = screen.getByText('Submit');
+        expect(makeMoveSpy).not.toHaveBeenCalled();
+        await waitFor(() => {
+          fireEvent.click(sendGalleryButton);
+        });
+        expect(makeMoveSpy).toHaveBeenCalledTimes(1);
+      });
+      it('should display a toast when submission fails', async () => {
+        makeMoveSpy.mockRejectedValue(new Error('Test Error'));
+        mockClear(mockToast);
+        const submitButton = screen.getByText('Submit');
+        act(() => {
+          fireEvent.click(submitButton);
+        });
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              status: 'error',
+              description: `Error: Test Error`,
+            }),
+          );
+        });
+      });
+    });
+  });
+  describe('Drawing area use case', () => {
     const gameAreaController = mock<DrawingAreaController>();
     const authorID = nanoid();
     let makeMoveSpy: jest.SpyInstance<Promise<void>, [drawing: Drawing]>;
@@ -44,7 +129,9 @@ describe('DrawingCanvas', () => {
         id: nanoid(),
         occupants: [],
       });
-      render(<DrawingCanvas controller={gameAreaController} authorID={authorID} />);
+      act(() => {
+        render(<DrawingCanvas controller={gameAreaController} authorID={authorID} />);
+      });
     });
     afterEach(() => {
       makeMoveSpy.mockClear();
@@ -96,12 +183,14 @@ describe('DrawingCanvas', () => {
         expect(screen.getAllByText('Load')).toHaveLength(1);
       });
 
-      it('Should display a button to send image to gallery', () => {
+      it('Should display a button to send image to gallery', async () => {
         expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
         const sendGalleryButton = screen.getByText('Send to gallery');
         expect(makeMoveSpy).not.toHaveBeenCalled();
 
-        fireEvent.click(sendGalleryButton);
+        await waitFor(() => {
+          fireEvent.click(sendGalleryButton);
+        });
 
         expect(makeMoveSpy).toHaveBeenCalledTimes(1);
       });
@@ -115,7 +204,9 @@ describe('DrawingCanvas', () => {
         expect(makeMoveSpy).not.toHaveBeenCalled();
         expect(mockToast).not.toHaveBeenCalled();
 
-        fireEvent.click(sendGalleryButton);
+        act(() => {
+          fireEvent.click(sendGalleryButton);
+        });
 
         await waitFor(() => {
           expect(mockToast).toBeCalledWith(

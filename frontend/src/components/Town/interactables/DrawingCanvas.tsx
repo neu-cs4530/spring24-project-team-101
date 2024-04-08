@@ -24,9 +24,10 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
   const toast = useToast();
 
   let telestrations: boolean;
-  if (controller.toInteractableAreaModel().type === 'DrawingArea') {
+  const controllerType = controller.toInteractableAreaModel().type;
+  if (controllerType === 'DrawingArea') {
     telestrations = false;
-  } else if (controller.toInteractableAreaModel().type === 'TelestrationsArea') {
+  } else if (controllerType === 'TelestrationsArea') {
     telestrations = true;
   } else {
     throw new Error('Invalid controller type');
@@ -175,29 +176,6 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
           disabled={loading}>
           Send to gallery
         </Button>
-      )}
-      {telestrations ? (
-        <Button
-          onClick={async () => {
-            setLoading(true);
-            const url = canvasRef.current.getDataURL('png', false, '#ffffff');
-            try {
-              // call telestrations controller makeMove
-            } catch (err) {
-              toast({
-                title: 'Error submitting drawing',
-                description: (err as Error).toString(),
-                status: 'error',
-              });
-            }
-            setLoading(false);
-          }}
-          isLoading={loading}
-          disabled={loading}>
-          Submit drawing
-        </Button>
-      ) : (
-        <></>
       )}
     </div>
   );

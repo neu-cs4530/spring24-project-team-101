@@ -220,6 +220,7 @@ interface InteractableCommandBase {
   type: string;
 }
 
+
 export type InteractableCommand =  ViewingAreaUpdateCommand | JoinGameCommand | GameMoveCommand<TicTacToeMove> | GameMoveCommand<ConnectFourMove> | GameMoveCommand<TelestrationsMove> | StartGameCommand | LeaveGameCommand | SaveDrawingCommand;
 export interface ViewingAreaUpdateCommand  {
   type: 'ViewingAreaUpdate';
