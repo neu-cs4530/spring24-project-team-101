@@ -5,7 +5,7 @@ import { mock, mockClear } from 'jest-mock-extended';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
 import { nanoid } from 'nanoid';
-import { Drawing, TelestrationsMove } from '../../../../../shared/types/CoveyTownSocket';
+import { Drawing } from '../../../../../shared/types/CoveyTownSocket';
 
 const mockToast = jest.fn();
 jest.mock('@chakra-ui/react', () => {

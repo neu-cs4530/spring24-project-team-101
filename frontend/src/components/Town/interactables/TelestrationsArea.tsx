@@ -2,13 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import PlayerController from '../../../classes/PlayerController';
 import { useInteractableAreaController } from '../../../classes/TownController';
 import useTownController from '../../../hooks/useTownController';
-import {
-  Drawing,
-  GameStatus,
-  InteractableID,
-  TelestrationsAction,
-  TelestrationsMove,
-} from '../../../types/CoveyTownSocket';
+import { GameStatus, InteractableID, TelestrationsAction } from '../../../types/CoveyTownSocket';
 import { Button, Input, List, ListItem, useToast, Image } from '@chakra-ui/react';
 import DrawingCanvas from './DrawingCanvas';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
@@ -32,9 +26,6 @@ export default function TelestrationsArea({
   const [gameStatus, setGameStatus] = useState<GameStatus>(gameAreaController.status);
   const [gamePhase, setGamePhase] = useState<TelestrationsAction>(gameAreaController.gamePhase);
   const [wordToDraw, setWordToDraw] = useState<string | undefined>(gameAreaController.wordToDraw);
-  const [imageToGuess, setImageToGuess] = useState<Drawing | undefined>(
-    gameAreaController.imageToGuess,
-  );
   const toast = useToast();
   useEffect(() => {
     const updateGameState = () => {
@@ -42,7 +33,6 @@ export default function TelestrationsArea({
       setGamePhase(gameAreaController.gamePhase || 'PICK_WORD');
       setListOfPlayers(gameAreaController.players);
       setWordToDraw(gameAreaController.wordToDraw || '');
-      setImageToGuess(gameAreaController.imageToGuess);
     };
     const onGameEnd = () => {
       toast({

@@ -1,8 +1,6 @@
 import assert from 'assert';
 import { mock } from 'jest-mock-extended';
-import { before } from 'lodash';
 import { nanoid } from 'nanoid';
-import { string } from 'prop-types';
 import { GameResult, GameStatus, TelestrationsMove } from '../../types/CoveyTownSocket';
 import PlayerController from '../PlayerController';
 import TownController from '../TownController';
