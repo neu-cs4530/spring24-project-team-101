@@ -37,6 +37,7 @@ export function isTelestrationsArea(
   interactable: Interactable,
 ): interactable is GameArea<TelestrationsGameState> {
   return interactable.type === 'TelestrationsArea';
+}
 export function isDrawingArea(
   interactable: Interactable,
 ): interactable is GameArea<DrawingGameState> {
