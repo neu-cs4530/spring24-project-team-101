@@ -28,8 +28,6 @@ export default class TelestrationsAreaController extends GameAreaController<
     return !this.isEmpty() && this.status && this.status !== 'OVER';
   }
 
-  protected _drawing: Drawing | undefined = undefined;
-
   protected _chains: TelestrationsMove[][] = [[]];
 
   protected _updateFrom(newModel: GameArea<TelestrationsGameState>): void {
@@ -102,13 +100,6 @@ export default class TelestrationsAreaController extends GameAreaController<
     } else {
       return this._model.game?.state.status;
     }
-  }
-
-  /**
-   * Returns the current state of the drawing.
-   */
-  get drawing(): Drawing | undefined {
-    return this._drawing;
   }
 
   /**
