@@ -5,7 +5,7 @@ import { CirclePicker, ColorResult } from 'react-color';
 import GameAreaController, {
   GameEventTypes,
 } from '../../../classes/interactable/GameAreaController';
-import { GameState } from '../../../types/CoveyTownSocket';
+import { Drawing, GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { nanoid } from 'nanoid';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
@@ -19,7 +19,6 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
-  const [saveData, setSaveData] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
@@ -118,7 +117,7 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       ) : (
         <Button
           onClick={() => {
-            setSaveData(canvasRef.current.getSaveData());
+            (controller as DrawingAreaController).saveData = canvasRef.current.getSaveData();
           }}>
           Save
         </Button>
@@ -128,7 +127,8 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       ) : (
         <Button
           onClick={() => {
-            canvasRef.current.loadSaveData(saveData, true);
+            const data = (controller as DrawingAreaController).saveData;
+            canvasRef.current.loadSaveData(data, true);
           }}>
           Load
         </Button>
