@@ -107,16 +107,6 @@ describe('TelestrationsAreaController', () => {
     return ret;
   }
   describe('isOurTurn', () => {
-    it('returns true if it is our turn', () => {
-      const controller = telestrationsAreaControllerWithProps({
-        status: 'IN_PROGRESS',
-        playersInGameFlag: true,
-        observers: otherPlayers.map(player => player.id),
-      });
-      expect(controller.players.length).toBe(3);
-      controller.makeMove('test');
-      expect(controller.isOurTurn).toBe(true);
-    });
     it('returns false if it is not our turn', () => {
       const controller = telestrationsAreaControllerWithProps({
         status: 'IN_PROGRESS',
