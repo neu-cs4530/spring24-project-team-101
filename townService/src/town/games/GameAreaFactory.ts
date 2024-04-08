@@ -2,6 +2,7 @@ import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import { BoundingBox, TownEmitter } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
 import ConnectFourGameArea from './ConnectFourGameArea';
+import TelestrationsGameArea from './TelestrationsGameArea';
 import DrawingArea from './DrawingArea';
 import TicTacToeGameArea from './TicTacToeGameArea';
 
@@ -27,6 +28,9 @@ export default function GameAreaFactory(
   }
   if (gameType === 'ConnectFour') {
     return new ConnectFourGameArea(name, rect, broadcastEmitter);
+  }
+  if (gameType === 'Telestrations') {
+    return new TelestrationsGameArea(name, rect, broadcastEmitter);
   }
   if (gameType === 'DrawingGame') {
     return new DrawingArea(name, rect, broadcastEmitter);

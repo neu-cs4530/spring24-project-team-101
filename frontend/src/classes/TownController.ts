@@ -29,6 +29,7 @@ import {
 import {
   isConnectFourArea,
   isConversationArea,
+  isTelestrationsArea,
   isDrawingArea,
   isTicTacToeArea,
   isViewingArea,
@@ -41,6 +42,7 @@ import InteractableAreaController, {
   BaseInteractableEventMap,
   GenericInteractableAreaController,
 } from './interactable/InteractableAreaController';
+import TelestrationsAreaController from './interactable/TelestrationsAreaController';
 import TicTacToeAreaController from './interactable/TicTacToeAreaController';
 import ViewingAreaController from './interactable/ViewingAreaController';
 import PlayerController from './PlayerController';
@@ -631,6 +633,10 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
           } else if (isConnectFourArea(eachInteractable)) {
             this._interactableControllers.push(
               new ConnectFourAreaController(eachInteractable.id, eachInteractable, this),
+            );
+          } else if (isTelestrationsArea(eachInteractable)) {
+            this._interactableControllers.push(
+              new TelestrationsAreaController(eachInteractable.id, eachInteractable, this),
             );
           } else if (isDrawingArea(eachInteractable)) {
             this._interactableControllers.push(

@@ -8,6 +8,7 @@ import GameAreaController, {
 import { GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { nanoid } from 'nanoid';
+import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
 
 export type DrawingCanvasProps = {
   controller: GameAreaController<GameState, GameEventTypes>;
@@ -25,8 +26,8 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
   let telestrations: boolean;
   if (controller.toInteractableAreaModel().type === 'DrawingArea') {
     telestrations = false;
-    // } else if (controller.toInteractableAreaModel().type === 'TelestrationsArea') {
-    //   telestrations = true;
+  } else if (controller.toInteractableAreaModel().type === 'TelestrationsArea') {
+    telestrations = true;
   } else {
     throw new Error('Invalid controller type');
   }
@@ -84,6 +85,33 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
         }}>
         Size down
       </Button>
+      {telestrations ? (
+        <Button
+          onClick={async () => {
+            setLoading(true);
+            const url = canvasRef.current.getDataURL('png', false, '#ffffff');
+            try {
+              await (controller as TelestrationsAreaController).makeMove({
+                drawingID: nanoid(),
+                authorID,
+                userDrawing: url,
+              });
+            } catch (err) {
+              toast({
+                title: 'Error submitting drawing',
+                description: (err as Error).toString(),
+                status: 'error',
+              });
+            }
+            setLoading(false);
+          }}
+          isLoading={loading}
+          disabled={loading}>
+          Submit
+        </Button>
+      ) : (
+        <></>
+      )}
       {telestrations ? (
         <></>
       ) : (
