@@ -128,7 +128,9 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
         <Button
           onClick={() => {
             const data = (controller as DrawingAreaController).saveData;
-            canvasRef.current.loadSaveData(data, true);
+            if (data.length > 0) {
+              canvasRef.current.loadSaveData(data, true);
+            }
           }}>
           Load
         </Button>
