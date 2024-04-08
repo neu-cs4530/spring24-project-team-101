@@ -296,7 +296,6 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    * @param player the player
    */
   private _removePlayer(player: Player): void {
-    console.log(`Removing player ${player.id} from game `);
     this.state = {
       ...this.state,
       players: this.state.players.filter(playerInGame => playerInGame !== player.id),

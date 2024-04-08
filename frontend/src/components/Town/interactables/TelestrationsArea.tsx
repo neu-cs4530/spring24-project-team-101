@@ -208,7 +208,7 @@ export default function TelestrationsArea({
         <>Draw {wordToDraw ? wordToDraw : 'NO WORD YET'}.</>
         <DrawingCanvas
           controller={gameAreaController}
-          authorID={townController.ourPlayer.id}></DrawingCanvas>
+          authorID={townController.userID}></DrawingCanvas>
       </div>
     );
   } else if (gamePhase === 'GUESS') {
