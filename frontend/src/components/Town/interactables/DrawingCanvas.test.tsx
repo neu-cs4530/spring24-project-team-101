@@ -1,34 +1,66 @@
 import DrawingCanvas from './DrawingCanvas';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
+import { mock, mockClear } from 'jest-mock-extended';
+import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
+import { nanoid } from 'nanoid';
+import { Drawing } from '../../../../../shared/types/CoveyTownSocket';
+
+const mockToast = jest.fn();
+jest.mock('@chakra-ui/react', () => {
+  const ui = jest.requireActual('@chakra-ui/react');
+  const mockUseToast = () => mockToast;
+  return {
+    ...ui,
+    useToast: mockUseToast,
+  };
+});
 
 describe('DrawingCanvas', () => {
-  describe('can we render the component at all?', () => {
-    afterEach(cleanup);
-    it('should render all the buttons by default', () => {
-      render(<DrawingCanvas />);
-      const buttons = screen.getAllByRole('button');
-      expect(buttons.length).toEqual(7);
-    });
-
-    it('should not render saving/loading buttons in telestrations mode', () => {
-      render(<DrawingCanvas telestrations={true}></DrawingCanvas>);
-      const buttons = screen.getAllByRole('button');
-      expect(buttons.length).toEqual(3);
-    });
+  describe('Telestrations use case', () => {
+    // TODO: test that the correct things are displayed when a
+    // telestrationsareacontroller is passed in as the controller prop
+    // see tests below for examples
   });
 
-  describe('Button tests', () => {
-    beforeEach(() => {
-      render(<DrawingCanvas />);
-    });
-    afterEach(cleanup);
+  describe('Drawing use case', () => {
+    const gameAreaController = mock<DrawingAreaController>();
+    const authorID = nanoid();
+    let makeMoveSpy: jest.SpyInstance<Promise<void>, [drawing: Drawing]>;
 
-    describe('Canvas', () => {
+    beforeEach(() => {
+      makeMoveSpy = jest.spyOn(gameAreaController, 'makeMove');
+      jest.spyOn(gameAreaController, 'toInteractableAreaModel').mockReturnValue({
+        game: {
+          state: {
+            drawings: [],
+            status: 'IN_PROGRESS',
+          },
+          id: nanoid(),
+          players: [],
+        },
+        history: [],
+        type: 'DrawingArea',
+        id: nanoid(),
+        occupants: [],
+      });
+      render(<DrawingCanvas controller={gameAreaController} authorID={authorID} />);
+    });
+    afterEach(() => {
+      makeMoveSpy.mockClear();
+      cleanup();
+    });
+
+    describe('Basic elements present', () => {
       it('should display a drawing canvas', () => {
         // the library does not include any accessibility tags or really anything useful
         // to identify the CanvasDraw component. it creates 4 <canvas> elements, but the test shouldn't rely on that
         expect(document.getElementsByTagName('canvas').length).toBeGreaterThan(0);
+      });
+
+      it('should render all the buttons', () => {
+        const buttons = screen.getAllByRole('button');
+        expect(buttons.length).toEqual(7);
       });
     });
 
@@ -66,8 +98,35 @@ describe('DrawingCanvas', () => {
 
       it('Should display a button to send image to gallery', () => {
         expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
-        // TODO: once we implement this, we may be able to actually test that it works
-        // since it shouldn't rely on any CanvasDraw functionality
+        const sendGalleryButton = screen.getByText('Send to gallery');
+        expect(makeMoveSpy).not.toHaveBeenCalled();
+
+        fireEvent.click(sendGalleryButton);
+
+        expect(makeMoveSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('should display a toast when sending to gallery fails', async () => {
+        makeMoveSpy.mockRejectedValue(new Error('Test Error'));
+        mockClear(mockToast);
+
+        expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
+        const sendGalleryButton = screen.getByText('Send to gallery');
+        expect(makeMoveSpy).not.toHaveBeenCalled();
+        expect(mockToast).not.toHaveBeenCalled();
+
+        fireEvent.click(sendGalleryButton);
+
+        await waitFor(() => {
+          expect(mockToast).toBeCalledWith(
+            expect.objectContaining({
+              status: 'error',
+              description: `Error: Test Error`,
+            }),
+          );
+        });
+
+        expect(makeMoveSpy).toHaveBeenCalledTimes(1);
       });
     });
 

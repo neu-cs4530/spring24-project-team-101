@@ -47,8 +47,6 @@ function createMove(
 
 function createDrawing(player: Player): Drawing {
   return {
-    exit: () => undefined,
-    save: () => undefined,
     drawingID: nanoid(),
     authorID: player.id,
     length: 1,
