@@ -1,5 +1,5 @@
 import DrawingCanvas from './DrawingCanvas';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, act } from '@testing-library/react';
 import React from 'react';
 import { mock, mockClear } from 'jest-mock-extended';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
@@ -24,12 +24,9 @@ describe('DrawingCanvas', () => {
     // see tests below for examples
     const telestrationsController = mock<TelestrationsAreaController>();
     const authorID = nanoid();
-    let makeMoveSpy: jest.SpyInstance<Promise<void>, [drawing: Drawing]>;
+    let makeMoveSpy: jest.SpyInstance<Promise<void>, [input: string | Drawing]>;
     beforeEach(() => {
-      makeMoveSpy = jest.spyOn(telestrationsController, 'makeMove') as jest.SpyInstance<
-        Promise<void>,
-        [drawing: Drawing]
-      >;
+      makeMoveSpy = jest.spyOn(telestrationsController, 'makeMove');
       jest.spyOn(telestrationsController, 'toInteractableAreaModel').mockReturnValue({
         game: {
           state: {
@@ -84,18 +81,22 @@ describe('DrawingCanvas', () => {
       });
     });
     describe('Submitting drawing', () => {
-      it('Should display a button to submit to game', () => {
+      it('Should display a button to submit to game', async () => {
         expect(screen.getAllByText('Submit')).toHaveLength(1);
         const sendGalleryButton = screen.getByText('Submit');
         expect(makeMoveSpy).not.toHaveBeenCalled();
-        fireEvent.click(sendGalleryButton);
+        await waitFor(() => {
+          fireEvent.click(sendGalleryButton);
+        });
         expect(makeMoveSpy).toHaveBeenCalledTimes(1);
       });
       it('should display a toast when submission fails', async () => {
         makeMoveSpy.mockRejectedValue(new Error('Test Error'));
         mockClear(mockToast);
         const submitButton = screen.getByText('Submit');
-        fireEvent.click(submitButton);
+        act(() => {
+          fireEvent.click(submitButton);
+        });
         await waitFor(() => {
           expect(mockToast).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -128,7 +129,9 @@ describe('DrawingCanvas', () => {
         id: nanoid(),
         occupants: [],
       });
-      render(<DrawingCanvas controller={gameAreaController} authorID={authorID} />);
+      act(() => {
+        render(<DrawingCanvas controller={gameAreaController} authorID={authorID} />);
+      });
     });
     afterEach(() => {
       makeMoveSpy.mockClear();
@@ -180,12 +183,14 @@ describe('DrawingCanvas', () => {
         expect(screen.getAllByText('Load')).toHaveLength(1);
       });
 
-      it('Should display a button to send image to gallery', () => {
+      it('Should display a button to send image to gallery', async () => {
         expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
         const sendGalleryButton = screen.getByText('Send to gallery');
         expect(makeMoveSpy).not.toHaveBeenCalled();
 
-        fireEvent.click(sendGalleryButton);
+        await waitFor(() => {
+          fireEvent.click(sendGalleryButton);
+        });
 
         expect(makeMoveSpy).toHaveBeenCalledTimes(1);
       });
@@ -199,7 +204,9 @@ describe('DrawingCanvas', () => {
         expect(makeMoveSpy).not.toHaveBeenCalled();
         expect(mockToast).not.toHaveBeenCalled();
 
-        fireEvent.click(sendGalleryButton);
+        act(() => {
+          fireEvent.click(sendGalleryButton);
+        });
 
         await waitFor(() => {
           expect(mockToast).toBeCalledWith(
