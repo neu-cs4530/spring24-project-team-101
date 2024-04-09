@@ -281,41 +281,40 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       {telestrations ? (
         <></>
       ) : (
-        <div>
-          <Button
-            onClick={onOpen}
-            disabled={loading}
-            data-testid='send-to-gallery-button-${uniqueIdentifier}`'>
-            Send to Gallery
-          </Button>
-          <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Choose a Frame</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                {frameOptions.map(frame => (
-                  <Button
-                    key={frame.id}
-                    onClick={() => setSelectedFrame(frame)}
-                    m={2}
-                    colorScheme={selectedFrame.id === frame.id ? 'blue' : 'gray'} // Highlight selected frame
-                    variant={selectedFrame.id === frame.id ? 'solid' : 'outline'}>
-                    {frame.label}
-                    {frame.imageUrl && (
-                      <Image src={frame.imageUrl} alt={frame.label} boxSize='30px' ml={2} />
-                    )}
-                  </Button>
-                ))}
-              </ModalBody>
-              <ModalFooter>
-                <Button colorScheme='blue' mr={3} onClick={sendDrawingToGallery}>
-                  Send with Frame
+        <Button onClick={onOpen} disabled={loading}>
+          Send to Gallery
+        </Button>
+      )}
+      {telestrations ? (
+        <></>
+      ) : (
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Choose a Frame</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              {frameOptions.map(frame => (
+                <Button
+                  key={frame.id}
+                  onClick={() => setSelectedFrame(frame)}
+                  m={2}
+                  colorScheme={selectedFrame.id === frame.id ? 'blue' : 'gray'} // Highlight selected frame
+                  variant={selectedFrame.id === frame.id ? 'solid' : 'outline'}>
+                  {frame.label}
+                  {frame.imageUrl && (
+                    <Image src={frame.imageUrl} alt={frame.label} boxSize='30px' ml={2} />
+                  )}
                 </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-        </div>
+              ))}
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme='blue' mr={3} onClick={sendDrawingToGallery}>
+                Send with Frame
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       )}
     </div>
   );
