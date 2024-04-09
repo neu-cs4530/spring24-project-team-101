@@ -110,11 +110,7 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
     const offscreenCanvas = document.createElement('canvas');
     const framePadding = 38; // This is the padding you want around your canvas image within the frame
     offscreenCanvas.width = canvasRef.current.props.canvasWidth || 200;
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    +(2 * framePadding); // Add padding to the off-screen canvas dimensions
     offscreenCanvas.height = canvasRef.current.props.canvasHeight || 200;
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    +(2 * framePadding);
     const offscreenCtx = offscreenCanvas.getContext('2d');
 
     if (selectedFrame.id !== 'none' && offscreenCtx) {
@@ -124,7 +120,7 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
         offscreenCtx.drawImage(frameImage, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
 
         const drawingImage = new window.Image();
-        drawingImage.onload = () => {
+        drawingImage.onload = async () => {
           // Calculate the position to start drawing the canvas image
           const xPosition = framePadding;
           const yPosition = framePadding;
@@ -141,7 +137,7 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
             canvasImageWidth,
             canvasImageHeight,
           );
-          finalizeImage(offscreenCanvas.toDataURL('image/png'));
+          await finalizeImage(offscreenCanvas.toDataURL('image/png'));
         };
         drawingImage.src = canvasRef.current.getDataURL('png', false, '#ffffff');
       };
@@ -284,7 +280,10 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
         <></>
       ) : (
         <div>
-          <Button onClick={onOpen} disabled={loading}>
+          <Button
+            onClick={onOpen}
+            disabled={loading}
+            data-testid='send-to-gallery-button-${uniqueIdentifier}`'>
             Send to Gallery
           </Button>
           <Modal isOpen={isOpen} onClose={onClose}>

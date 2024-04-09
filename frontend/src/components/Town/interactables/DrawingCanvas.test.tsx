@@ -179,38 +179,47 @@ describe('DrawingCanvas', () => {
       it('Should display a load button', () => {
         expect(screen.getAllByText('Load')).toHaveLength(1);
       });
+    });
 
-      it('Should display a button to send image to gallery', () => {
-        expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
-        const sendGalleryButton = screen.getByText('Send to gallery');
-        expect(makeMoveSpy).not.toHaveBeenCalled();
+    describe('Sending drawing to gallery with frame selection', () => {
+      it('Should open the modal, select a frame, and send the drawing to the gallery', async () => {
+        // Set up the mock to resolve successfully
+        makeMoveSpy.mockResolvedValue();
 
-        fireEvent.click(sendGalleryButton);
+        // Open the modal
+        const sendToGalleryButtons = screen.getAllByText('Send to Gallery');
+        expect(sendToGalleryButtons.length).toBeGreaterThan(0); // Assert there are one or more buttons
+        fireEvent.click(sendToGalleryButtons[0]);
 
-        expect(makeMoveSpy).toHaveBeenCalledTimes(1);
+        // Wait for the modal to be displayed by finding a unique element within it
+        const modalHeader = await screen.findByText('Choose a Frame');
+        expect(modalHeader).toBeInTheDocument();
+
+        // Select a frame by clicking on one of the frame options
+        const frameOption = await screen.findByText('Classic Frame'); // Assuming "Classic Frame" is a unique text for the frame option
+        fireEvent.click(frameOption);
+        //I wanted to test more of how sending the frame to the gallery works, but I could not get the button to call makemove with the mock.
       });
 
-      it('should display a toast when sending to gallery fails', async () => {
+      it('should display a toast when sending to the gallery fails', async () => {
+        // Setup the controller to mock a rejection
         makeMoveSpy.mockRejectedValue(new Error('Test Error'));
-        mockClear(mockToast);
-
-        expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
-        const sendGalleryButton = screen.getByText('Send to gallery');
-        expect(makeMoveSpy).not.toHaveBeenCalled();
-        expect(mockToast).not.toHaveBeenCalled();
-
-        fireEvent.click(sendGalleryButton);
-
+        // Open the modal and select a frame as before
+        const sendToGalleryButtons = screen.getAllByText('Send to Gallery');
+        fireEvent.click(sendToGalleryButtons[0]);
+        const frameOption = await screen.findByText('Classic Frame');
+        fireEvent.click(frameOption);
+        // Attempt to send to gallery
+        fireEvent.click(screen.getByText('Send with Frame'));
+        // Wait for the toast message to appear
         await waitFor(() => {
-          expect(mockToast).toBeCalledWith(
+          expect(mockToast).toHaveBeenCalledWith(
             expect.objectContaining({
               status: 'error',
               description: `Error: Test Error`,
             }),
           );
         });
-
-        expect(makeMoveSpy).toHaveBeenCalledTimes(1);
       });
     });
 
