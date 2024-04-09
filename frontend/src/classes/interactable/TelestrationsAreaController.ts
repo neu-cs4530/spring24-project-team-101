@@ -169,7 +169,17 @@ export default class TelestrationsAreaController extends GameAreaController<
    * At the end of the game, the player should be able to see the progression of their word.
    */
   get ourChain(): TelestrationsMove[] | undefined {
-    return this._currentChain();
+    if (this._model.game && this._chains.length > 0) {
+      //have you drawn in this game phase yet?
+      const playerNumber = this._model.game?.state.players.findIndex(
+        player => player === this._townController.ourPlayer.id,
+      );
+      return this._model.game.state.chains.length > playerNumber
+        ? [...this._model.game.state.chains[playerNumber]]
+        : undefined;
+    } else {
+      return undefined;
+    }
   }
 
   /**
