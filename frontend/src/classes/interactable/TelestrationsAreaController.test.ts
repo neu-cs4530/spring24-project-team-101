@@ -35,6 +35,12 @@ describe('TelestrationsAreaController', () => {
     controller: TelestrationsAreaController,
     nextMove: TelestrationsMove,
   ): void {
+    if (nextMove.word) {
+        controller.makeMove(nextMove.word);
+    }
+    if (nextMove.drawing) {
+        controller.makeMove(nextMove.drawing);
+    }
     const nextState = Object.assign({}, controller.toInteractableAreaModel());
     const nextGame = Object.assign({}, nextState.game);
     nextState.game = nextGame;
@@ -139,23 +145,55 @@ describe('TelestrationsAreaController', () => {
   });
 
   describe('gamePhase', () => {
-    it('returns the current phase of the game', () => {});
-    it('returns PICK_WORD if there is no game', () => {});
+    it('returns the current phase of the game', () => {
+        //expect(controller.makeMove).toBeCalledTimes(3);
+    });
+    it('returns PICK_WORD if there is no game', () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'IN_PROGRESS',
+            playersInGameFlag: true,
+        });
+        expect(controller.gamePhase).toBe('PICK_WORD');
+    });
   });
 
   describe('status', () => {
-    it('returns the current status of the game', () => {});
-    it('returns WAITING_FOR_PLAYERS if there is no game', () => {});
+    it('returns the current status of the game', () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'IN_PROGRESS',
+            playersInGameFlag: true,
+        });
+        expect(controller.status).toBe('IN_PROGRESS');
+    });
+    it('returns WAITING_FOR_PLAYERS if there is no game', () => {
+        const controller = telestrationsAreaControllerWithProps({
+            undefinedGame: true,
+        });
+        expect(controller.status).toBe('WAITING_FOR_PLAYERS');
+    });
   });
 
   describe('wordToDraw', () => {
-    it('returns the previous word in the chain', () => {});
-    it('returns undefined if there is no previous word in the chain', () => {});
+    it('returns the previous word in the chain', () => {
+    });
+    it('returns undefined if there is no previous word in the chain', () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'IN_PROGRESS',
+            playersInGameFlag: true,
+        });
+        expect(controller.wordToDraw).toBe(undefined);
+    });
   });
 
   describe('imageToGuess', () => {
     it('returns the previous drawing in the chain', () => {});
-    it('returns undefined if there is no previous drawing in the chain', () => {});
+    it('returns undefined if there is no previous drawing in the chain', () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'IN_PROGRESS',
+            playersInGameFlag: true,
+        });
+        expect(controller.imageToGuess).toBe(undefined);
+    });
   });
 
   describe('startGame', () => {
@@ -167,12 +205,28 @@ describe('TelestrationsAreaController', () => {
 
   describe('ourChain', () => {
     it('returns the appropriate chain', () => {});
-    it('returns undefined if there is no game', () => {});
+    it('returns undefined if there is no game', () => {
+        const controller = telestrationsAreaControllerWithProps({
+            undefinedGame: true,
+        });
+        expect(controller.ourChain).toBe(undefined);
+    });
   });
 
   describe('makeMove', () => {
-    it('Throws an error if there is no game', async () => {});
-    it('Throws an error if game status is not IN_PROGRESS', async () => {});
+    it('Throws an error if there is no game', async () => {
+        const controller = telestrationsAreaControllerWithProps({
+            undefinedGame: true,
+        });
+        expect(() => controller.makeMove('word')).toThrowError();
+    });
+    it('Throws an error if game status is not IN_PROGRESS', async () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'OVER',
+            playersInGameFlag: true,
+        });
+        expect(() => controller.makeMove('word')).toThrowError();
+    });
     it('Sets the move type based on the game phase', () => {});
   });
 
