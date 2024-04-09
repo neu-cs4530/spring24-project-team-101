@@ -42,13 +42,13 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
     },
     {
       id: 'frame2',
-      label: 'Classic Frame',
-      imageUrl: '/images/rsz_pngtree-metallic-gold-picture-frame-3d-png-image_10462872.png',
+      label: 'Fancy Frame',
+      imageUrl: '/images/fancy.jpeg',
     },
     {
       id: 'frame3',
-      label: 'Classic Frame',
-      imageUrl: '/images/rsz_pngtree-metallic-gold-picture-frame-3d-png-image_10462872.png',
+      label: 'Modern Frame',
+      imageUrl: '/images/plainframe.jpeg',
     },
   ];
 
@@ -293,10 +293,17 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
               <ModalHeader>Choose a Frame</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
-                {/* Dynamically generate frame selection buttons */}
                 {frameOptions.map(frame => (
-                  <Button key={frame.id} onClick={() => setSelectedFrame(frame)} m={2}>
+                  <Button
+                    key={frame.id}
+                    onClick={() => setSelectedFrame(frame)}
+                    m={2}
+                    colorScheme={selectedFrame.id === frame.id ? 'blue' : 'gray'} // Highlight selected frame
+                    variant={selectedFrame.id === frame.id ? 'solid' : 'outline'}>
                     {frame.label}
+                    {frame.imageUrl && (
+                      <Image src={frame.imageUrl} alt={frame.label} boxSize='30px' ml={2} />
+                    )}
                   </Button>
                 ))}
               </ModalBody>
