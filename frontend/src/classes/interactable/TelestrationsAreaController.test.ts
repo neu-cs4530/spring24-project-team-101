@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { GameResult, GameStatus, TelestrationsMove } from '../../types/CoveyTownSocket';
 import PlayerController from '../PlayerController';
 import TownController from '../TownController';
+import { NO_GAME_IN_PROGRESS_ERROR } from './GameAreaController';
 import TelestrationsAreaController from './TelestrationsAreaController';
 
 describe('TelestrationsAreaController', () => {
@@ -197,10 +198,66 @@ describe('TelestrationsAreaController', () => {
   });
 
   describe('startGame', () => {
-    it('sends a StartGame command to the server', async () => {});
-    it('Does not catch any errors from the server', async () => {});
-    it('throws an error if the game is not startable', async () => {});
-    it('throws an error if there is no instanceid', async () => {});
+    it('sends a StartGame command to the server', async () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'WAITING_TO_START',
+          });
+          const instanceID = nanoid();
+          mockTownController.sendInteractableCommand.mockImplementationOnce(async () => {
+            return { gameID: instanceID };
+          });
+          await controller.joinGame();
+    
+          mockTownController.sendInteractableCommand.mockClear();
+          mockTownController.sendInteractableCommand.mockImplementationOnce(async () => {});
+          await controller.startGame();
+          expect(mockTownController.sendInteractableCommand).toHaveBeenCalledWith(controller.id, {
+            type: 'StartGame',
+            gameID: instanceID,
+          });
+    });
+    it('Does not catch any errors from the server', async () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'WAITING_TO_START',
+          });
+          const instanceID = nanoid();
+          mockTownController.sendInteractableCommand.mockImplementationOnce(async () => {
+            return { gameID: instanceID };
+          });
+          await controller.joinGame();
+    
+          mockTownController.sendInteractableCommand.mockClear();
+          const uniqueError = `Test Error ${nanoid()}`;
+          mockTownController.sendInteractableCommand.mockImplementationOnce(async () => {
+            throw new Error(uniqueError);
+          });
+          await expect(() => controller.startGame()).rejects.toThrowError(uniqueError);
+          expect(mockTownController.sendInteractableCommand).toHaveBeenCalledWith(controller.id, {
+            type: 'StartGame',
+            gameID: instanceID,
+          });
+    });
+    it('throws an error if the game is not startable', async () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'IN_PROGRESS',
+          });
+          const instanceID = nanoid();
+          mockTownController.sendInteractableCommand.mockImplementationOnce(async () => {
+            return { gameID: instanceID };
+          });
+          await controller.joinGame();
+          mockTownController.sendInteractableCommand.mockClear();
+          await expect(controller.startGame()).rejects.toThrowError();
+          expect(mockTownController.sendInteractableCommand).not.toHaveBeenCalled();
+    });
+    it('throws an error if there is no instanceid', async () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'WAITING_TO_START',
+          });
+          mockTownController.sendInteractableCommand.mockClear();
+          await expect(controller.startGame()).rejects.toThrowError();
+          expect(mockTownController.sendInteractableCommand).not.toHaveBeenCalled();
+    });
   });
 
   describe('ourChain', () => {
@@ -222,10 +279,9 @@ describe('TelestrationsAreaController', () => {
     });
     it('Throws an error if game status is not IN_PROGRESS', async () => {
         const controller = telestrationsAreaControllerWithProps({
-            status: 'OVER',
-            playersInGameFlag: true,
-        });
-        expect(() => controller.makeMove('word')).toThrowError();
+            status: 'WAITING_TO_START',
+          });
+          await expect(() => controller.makeMove('testFake')).rejects.toThrowError(NO_GAME_IN_PROGRESS_ERROR);
     });
     it('Sets the move type based on the game phase', () => {});
   });
@@ -241,7 +297,14 @@ describe('TelestrationsAreaController', () => {
     });
 
     describe('updating status', () => {
-      it('updates the status when the game starts', () => {});
+      it('updates the status when the game starts', () => {
+        const controller = telestrationsAreaControllerWithProps({
+            status: 'WAITING_FOR_PLAYERS',
+            playersInGameFlag: true,
+        });
+        controller.startGame();
+        expect(controller.status).toBe('IN_PROGRESS');
+      });
       it('updates the status when the game ends', () => {});
     });
 
