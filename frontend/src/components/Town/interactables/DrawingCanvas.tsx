@@ -30,7 +30,6 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
-  const [saveData, setSaveData] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useToast();
   const frameOptions = [
@@ -244,7 +243,7 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       ) : (
         <Button
           onClick={() => {
-            setSaveData(canvasRef.current.getSaveData());
+            (controller as DrawingAreaController).saveData = canvasRef.current.getSaveData();
           }}>
           Save
         </Button>
@@ -254,7 +253,10 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       ) : (
         <Button
           onClick={() => {
-            canvasRef.current.loadSaveData(saveData, true);
+            const data = (controller as DrawingAreaController).saveData;
+            if (data.length > 0) {
+              canvasRef.current.loadSaveData(data, true);
+            }
           }}>
           Load
         </Button>

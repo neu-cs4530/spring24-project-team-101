@@ -152,15 +152,23 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
 
     // If every player has made a move:
     if (this.state.chains.every(chain => chain.length === this.state.gamePhase + 1)) {
+      const evenPlayers = this.state.players.length % 2 === 0;
+
       const activeChains =
         // Don't rotate on the first round for even players, otherwise we always rotate.
-        this.state.players.length % 2 === 0 && this.state.gamePhase === 0
+        evenPlayers && this.state.gamePhase === 0
           ? this.state.activeChains
           : this._rotate(this.state.activeChains);
 
       // If every player has contributed to every row, the game should end.
-      // In other words, we end when `chains` is a square matrix.
-      if (this.state.chains.every(chain => chain.length === this.state.chains.length)) {
+      // In other words, we end when `chains` is a square matrix with an odd number of players.
+      // With even players, players draw their own word, so each chain should be one longer.
+      if (
+        (evenPlayers &&
+          this.state.chains.every(chain => chain.length === this.state.chains.length + 1)) ||
+        (!evenPlayers &&
+          this.state.chains.every(chain => chain.length === this.state.chains.length))
+      ) {
         this.state = {
           ...this.state,
           status: 'OVER',
@@ -296,7 +304,6 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    * @param player the player
    */
   private _removePlayer(player: Player): void {
-    console.log(`Removing player ${player.id} from game `);
     this.state = {
       ...this.state,
       players: this.state.players.filter(playerInGame => playerInGame !== player.id),

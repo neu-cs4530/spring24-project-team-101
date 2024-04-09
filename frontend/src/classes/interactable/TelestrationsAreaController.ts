@@ -28,8 +28,6 @@ export default class TelestrationsAreaController extends GameAreaController<
     return !this.isEmpty() && this.status && this.status !== 'OVER';
   }
 
-  protected _drawing: Drawing | undefined = undefined;
-
   protected _chains: TelestrationsMove[][] = [[]];
 
   protected _updateFrom(newModel: GameArea<TelestrationsGameState>): void {
@@ -105,13 +103,6 @@ export default class TelestrationsAreaController extends GameAreaController<
   }
 
   /**
-   * Returns the current state of the drawing.
-   */
-  get drawing(): Drawing | undefined {
-    return this._drawing;
-  }
-
-  /**
    * Returns true if it is our turn to make a move, false otherwise
    */
   get isOurTurn(): boolean {
@@ -178,7 +169,17 @@ export default class TelestrationsAreaController extends GameAreaController<
    * At the end of the game, the player should be able to see the progression of their word.
    */
   get ourChain(): TelestrationsMove[] | undefined {
-    return this._currentChain();
+    if (this._model.game && this._chains.length > 0) {
+      //have you drawn in this game phase yet?
+      const playerNumber = this._model.game?.state.players.findIndex(
+        player => player === this._townController.ourPlayer.id,
+      );
+      return this._model.game.state.chains.length > playerNumber
+        ? [...this._model.game.state.chains[playerNumber]]
+        : undefined;
+    } else {
+      return undefined;
+    }
   }
 
   /**

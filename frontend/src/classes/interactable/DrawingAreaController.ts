@@ -15,11 +15,21 @@ export default class DrawingAreaController extends GameAreaController<
     drawing => drawing,
   );
 
+  protected _saveData = '';
+
   get drawings(): Drawing[] {
     if (!this._drawings) {
       return [];
     }
     return this._drawings;
+  }
+
+  get saveData(): string {
+    return this._saveData;
+  }
+
+  set saveData(saveData: string) {
+    this._saveData = saveData;
   }
 
   public isActive(): boolean {

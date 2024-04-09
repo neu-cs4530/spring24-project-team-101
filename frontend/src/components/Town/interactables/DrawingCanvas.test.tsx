@@ -1,11 +1,11 @@
 import DrawingCanvas from './DrawingCanvas';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, act } from '@testing-library/react';
 import React from 'react';
 import { mock, mockClear } from 'jest-mock-extended';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
 import { nanoid } from 'nanoid';
-import { Drawing, TelestrationsMove } from '../../../../../shared/types/CoveyTownSocket';
+import { Drawing } from '../../../../../shared/types/CoveyTownSocket';
 
 const mockToast = jest.fn();
 jest.mock('@chakra-ui/react', () => {
@@ -24,12 +24,9 @@ describe('DrawingCanvas', () => {
     // see tests below for examples
     const telestrationsController = mock<TelestrationsAreaController>();
     const authorID = nanoid();
-    let makeMoveSpy: jest.SpyInstance<Promise<void>, [drawing: Drawing]>;
+    let makeMoveSpy: jest.SpyInstance<Promise<void>, [input: string | Drawing]>;
     beforeEach(() => {
-      makeMoveSpy = jest.spyOn(telestrationsController, 'makeMove') as jest.SpyInstance<
-        Promise<void>,
-        [drawing: Drawing]
-      >;
+      makeMoveSpy = jest.spyOn(telestrationsController, 'makeMove');
       jest.spyOn(telestrationsController, 'toInteractableAreaModel').mockReturnValue({
         game: {
           state: {
@@ -84,18 +81,22 @@ describe('DrawingCanvas', () => {
       });
     });
     describe('Submitting drawing', () => {
-      it('Should display a button to submit to game', () => {
+      it('Should display a button to submit to game', async () => {
         expect(screen.getAllByText('Submit')).toHaveLength(1);
         const sendGalleryButton = screen.getByText('Submit');
         expect(makeMoveSpy).not.toHaveBeenCalled();
-        fireEvent.click(sendGalleryButton);
+        await waitFor(() => {
+          fireEvent.click(sendGalleryButton);
+        });
         expect(makeMoveSpy).toHaveBeenCalledTimes(1);
       });
       it('should display a toast when submission fails', async () => {
         makeMoveSpy.mockRejectedValue(new Error('Test Error'));
         mockClear(mockToast);
         const submitButton = screen.getByText('Submit');
-        fireEvent.click(submitButton);
+        act(() => {
+          fireEvent.click(submitButton);
+        });
         await waitFor(() => {
           expect(mockToast).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -109,6 +110,14 @@ describe('DrawingCanvas', () => {
   });
   describe('Drawing area use case', () => {
     const gameAreaController = mock<DrawingAreaController>();
+    Object.defineProperty(gameAreaController, 'saveData', {
+      get: () => {
+        // canvasdraw library expects a json string with these properties
+        return '{"lines":[],"width":400,"height":400}';
+      },
+      set: () => {},
+      configurable: true,
+    });
     const authorID = nanoid();
     let makeMoveSpy: jest.SpyInstance<Promise<void>, [drawing: Drawing]>;
 
@@ -128,7 +137,9 @@ describe('DrawingCanvas', () => {
         id: nanoid(),
         occupants: [],
       });
-      render(<DrawingCanvas controller={gameAreaController} authorID={authorID} />);
+      act(() => {
+        render(<DrawingCanvas controller={gameAreaController} authorID={authorID} />);
+      });
     });
     afterEach(() => {
       makeMoveSpy.mockClear();
@@ -168,20 +179,43 @@ describe('DrawingCanvas', () => {
     });
 
     describe('Saving and loading', () => {
-      it('Should display a save button', () => {
+      it('Should have a save button', () => {
         expect(screen.getAllByText('Save')).toHaveLength(1);
+        const saveButton = screen.getByText('Save');
+        const setDataSpy = jest.spyOn(gameAreaController, 'saveData', 'set');
+        expect(setDataSpy).not.toHaveBeenCalled();
+
+        fireEvent.click(saveButton);
+
+        expect(setDataSpy).toHaveBeenCalledTimes(1);
       });
 
       it('Should display a download button', () => {
         expect(screen.getAllByText('Download')).toHaveLength(1);
       });
 
-      it('Should display a load button', () => {
+      it('Should have a load button', () => {
         expect(screen.getAllByText('Load')).toHaveLength(1);
+        const loadButton = screen.getByText('Load');
+        const getDataSpy = jest.spyOn(gameAreaController, 'saveData', 'get');
+        expect(getDataSpy).not.toHaveBeenCalled();
+
+        fireEvent.click(loadButton);
+
+        expect(getDataSpy).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('Sending drawing to gallery with frame selection', () => {
+      it('Should display a button to send image to gallery', async () => {
+        expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
+        const sendGalleryButton = screen.getByText('Send to gallery');
+        expect(makeMoveSpy).not.toHaveBeenCalled();
+
+        await waitFor(() => {
+          fireEvent.click(sendGalleryButton);
+      });
+      
       it('Should open the modal, select a frame, and send the drawing to the gallery', async () => {
         // Set up the mock to resolve successfully
         makeMoveSpy.mockResolvedValue();
