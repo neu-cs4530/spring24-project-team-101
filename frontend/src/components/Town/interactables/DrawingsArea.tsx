@@ -44,6 +44,12 @@ export default function DrawingsArea({
     }
     return username;
   };
+  const formatDate = (date: number | Date | undefined) =>
+    new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: '2-digit',
+    }).format(date);
 
   let displayComponent = <></>;
   if (!nowDrawing) {
@@ -53,7 +59,9 @@ export default function DrawingsArea({
           return (
             <ListItem key={drawing.drawingID}>
               <Image src={drawing.userDrawing}></Image>
-              <p>By {getUsername(drawing)}</p>
+              <p>
+                By {getUsername(drawing)} on {formatDate(new Date())}
+              </p>
             </ListItem>
           );
         })}
