@@ -64,38 +64,41 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
   }, [townController, gameAreaController]);
   return (
     <>
-      <Accordion allowToggle>
-        <AccordionItem>
-          <Heading as='h3'>
-            <AccordionButton>
-              <Box flex='1' textAlign='left'>
-                Leaderboard
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-            <AccordionPanel>
-              <Leaderboard results={history} />
-            </AccordionPanel>
-          </Heading>
-        </AccordionItem>
-        <AccordionItem>
-          <Heading as='h3'>
-            <AccordionButton>
-              <Box as='span' flex='1' textAlign='left'>
-                Current Observers
-                <AccordionIcon />
-              </Box>
-            </AccordionButton>
-          </Heading>
-          <AccordionPanel>
-            <List aria-label='list of observers in the game'>
-              {observers.map(player => {
-                return <ListItem key={player.id}>{player.userName}</ListItem>;
-              })}
-            </List>
-          </AccordionPanel>
-        </AccordionItem>
-      </Accordion>
+      {gameAreaController.toInteractableAreaModel().type !== 'DrawingArea' &&
+        gameAreaController.toInteractableAreaModel().type !== 'TelestrationsArea' && (
+          <Accordion allowToggle>
+            <AccordionItem>
+              <Heading as='h3'>
+                <AccordionButton>
+                  <Box flex='1' textAlign='left'>
+                    Leaderboard
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel>
+                  <Leaderboard results={history} />
+                </AccordionPanel>
+              </Heading>
+            </AccordionItem>
+            <AccordionItem>
+              <Heading as='h3'>
+                <AccordionButton>
+                  <Box as='span' flex='1' textAlign='left'>
+                    Current Observers
+                    <AccordionIcon />
+                  </Box>
+                </AccordionButton>
+              </Heading>
+              <AccordionPanel>
+                <List aria-label='list of observers in the game'>
+                  {observers.map(player => {
+                    return <ListItem key={player.id}>{player.userName}</ListItem>;
+                  })}
+                </List>
+              </AccordionPanel>
+            </AccordionItem>
+          </Accordion>
+        )}
       <Flex>
         <Box>
           {gameAreaController.toInteractableAreaModel().type === 'ConnectFourArea' ? (
@@ -121,7 +124,9 @@ function GameArea({ interactableID }: { interactableID: InteractableID }): JSX.E
               display: 'flex',
               flexDirection: 'column',
             }}>
-            <ChatChannel interactableID={gameAreaController.id} />
+            {gameAreaController.toInteractableAreaModel().type !== 'DrawingArea' && (
+              <ChatChannel interactableID={gameAreaController.id} />
+            )}
           </div>
         </Box>
       </Flex>
