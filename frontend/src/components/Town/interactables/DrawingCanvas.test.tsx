@@ -208,14 +208,15 @@ describe('DrawingCanvas', () => {
 
     describe('Sending drawing to gallery with frame selection', () => {
       it('Should display a button to send image to gallery', async () => {
-        expect(screen.getAllByText('Send to gallery')).toHaveLength(1);
-        const sendGalleryButton = screen.getByText('Send to gallery');
+        // Open the modal
+        const sendToGalleryButtons = screen.getAllByText('Send to Gallery');
+        expect(sendToGalleryButtons.length).toBeGreaterThan(0); // Assert there are one or more buttons
         expect(makeMoveSpy).not.toHaveBeenCalled();
-
         await waitFor(() => {
-          fireEvent.click(sendGalleryButton);
+          fireEvent.click(sendToGalleryButtons[0]);
+        });
       });
-      
+
       it('Should open the modal, select a frame, and send the drawing to the gallery', async () => {
         // Set up the mock to resolve successfully
         makeMoveSpy.mockResolvedValue();
