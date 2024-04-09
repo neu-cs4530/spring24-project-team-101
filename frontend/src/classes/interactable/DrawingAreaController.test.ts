@@ -245,4 +245,11 @@ describe('[T2] DrawingAreaController', () => {
       });
     });
   });
+  describe('saveData', () => {
+    it('should get and set saveData', () => {
+      const testData = 'test data';
+      testArea.saveData = testData;
+      expect(testArea.saveData).toBe(testData);
+    });
+  });
 });
