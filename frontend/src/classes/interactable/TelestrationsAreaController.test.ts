@@ -1,7 +1,8 @@
 import assert from 'assert';
 import { mock } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
-import { Drawing, GameResult, GameStatus, TelestrationsMove } from '../../types/CoveyTownSocket';
+import GameArea from '../../components/Town/interactables/GameArea';
+import { Drawing, GameResult, GameStatus, TelestrationsGameState, TelestrationsMove } from '../../types/CoveyTownSocket';
 import PlayerController from '../PlayerController';
 import TownController from '../TownController';
 import { NO_GAME_IN_PROGRESS_ERROR } from './GameAreaController';
@@ -34,14 +35,15 @@ describe('TelestrationsAreaController', () => {
 
   function updateGameWithMove(
     controller: TelestrationsAreaController,
-    nextMove: string | Drawing,
+    nextMove: TelestrationsMove[],
   ): void {
     
-    controller.makeMove(nextMove);
     const nextState = Object.assign({}, controller.toInteractableAreaModel());
     const nextGame = Object.assign({}, nextState.game);
     nextState.game = nextGame;
     const newState = Object.assign({}, nextGame.state);
+    nextGame.state = newState;
+    newState.chains.concat(nextMove);
     nextGame.state = newState;
    
     controller.updateFrom(nextState, controller.occupants);
@@ -172,7 +174,7 @@ describe('TelestrationsAreaController', () => {
   });
 
   describe('wordToDraw', () => {
-    it('returns the previous word in the chain', () => {
+    it('returns the previous word in the chain', async () => {
     });
     it('returns undefined if there is no previous word in the chain', () => {
         const controller = telestrationsAreaControllerWithProps({
@@ -269,6 +271,10 @@ describe('TelestrationsAreaController', () => {
 
   describe('makeMove', () => {
     it('Throws an error if there is no game', async () => {
+        const controller = telestrationsAreaControllerWithProps({
+            undefinedGame: true,
+          });
+          await expect(() => controller.makeMove('testFake')).rejects.toThrowError(NO_GAME_IN_PROGRESS_ERROR);
     });
     it('Throws an error if game status is not IN_PROGRESS', async () => {
         const controller = telestrationsAreaControllerWithProps({
@@ -280,7 +286,9 @@ describe('TelestrationsAreaController', () => {
 
   describe('updateFrom', () => {
     describe('updating isOurTurn', () => {
-      it('stops being our turn after making a move', () => {});
+      it('stops being our turn after making a move', () => {
+
+      });
       it('becomes our turn again after all players have made a move', () => {});
     });
 
