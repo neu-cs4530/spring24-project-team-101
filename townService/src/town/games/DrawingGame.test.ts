@@ -32,6 +32,23 @@ describe('DrawingGame', () => {
       'fake drawing',
     );
   });
+  test('applyMove adds multiple drawings to the list (less than 10)', () => {
+    expect(drawingGame.state.drawings).toHaveLength(0);
+    drawingGame.applyMove({
+      move: makeDrawing('fake drawing'),
+      playerID: 'id',
+      gameID: 'id',
+    });
+    drawingGame.applyMove({
+      move: makeDrawing('fake drawing'),
+      playerID: 'id',
+      gameID: 'id',
+    });
+    expect(drawingGame.state.drawings).toHaveLength(2);
+    expect(drawingGame.state.drawings.map(drawing => drawing.userDrawing)).toContain(
+      'fake drawing',
+    );
+  });
 
   test('applyMove rotates the list once it reaches length 10', () => {
     drawingGame.state.drawings = [
@@ -77,6 +94,18 @@ describe('DrawingGame', () => {
     const model = drawingGame.toModel();
     expect(model.id).toEqual(drawingGame.id);
     expect(model.players).toHaveLength(0);
+    expect(model.result).toBeUndefined();
+    expect(model.state).toEqual(drawingGame.state);
+  });
+
+  test('toModel works with multiple players', () => {
+    const testPlayer1 = createPlayerForTesting();
+    drawingGame.join(testPlayer1);
+    const testPlayer2 = createPlayerForTesting();
+    drawingGame.join(testPlayer2);
+    const model = drawingGame.toModel();
+    expect(model.id).toEqual(drawingGame.id);
+    expect(model.players).toHaveLength(2);
     expect(model.result).toBeUndefined();
     expect(model.state).toEqual(drawingGame.state);
   });
