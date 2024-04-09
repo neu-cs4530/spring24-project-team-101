@@ -208,31 +208,25 @@ describe('DrawingCanvas', () => {
 
     describe('Sending drawing to gallery with frame selection', () => {
       it('Should display a button to send image to gallery', async () => {
-        // Open the modal
-        const sendToGalleryButtons = screen.getAllByText('Send to Gallery');
-        expect(sendToGalleryButtons.length).toBeGreaterThan(0); // Assert there are one or more buttons
-        expect(makeMoveSpy).not.toHaveBeenCalled();
-        await waitFor(() => {
-          fireEvent.click(sendToGalleryButtons[0]);
-        });
+        // Assert there is a button
+        expect(screen.getAllByText('Send to Gallery')).toHaveLength(1);
       });
 
       it('Should open the modal, select a frame, and send the drawing to the gallery', async () => {
         // Set up the mock to resolve successfully
         makeMoveSpy.mockResolvedValue();
-
         // Open the modal
-        const sendToGalleryButtons = screen.getAllByText('Send to Gallery');
-        expect(sendToGalleryButtons.length).toBeGreaterThan(0); // Assert there are one or more buttons
-        fireEvent.click(sendToGalleryButtons[0]);
-
+        const sendToGalleryButton = screen.getByText('Send to Gallery'); // Assert there are one or more buttons
+        expect(makeMoveSpy).not.toHaveBeenCalled();
+        fireEvent.click(sendToGalleryButton);
         // Wait for the modal to be displayed by finding a unique element within it
         const modalHeader = await screen.findByText('Choose a Frame');
         expect(modalHeader).toBeInTheDocument();
-
         // Select a frame by clicking on one of the frame options
         const frameOption = await screen.findByText('Classic Frame'); // Assuming "Classic Frame" is a unique text for the frame option
         fireEvent.click(frameOption);
+        // Attempt to send to gallery
+        fireEvent.click(screen.getByText('Send with Frame'));
         //I wanted to test more of how sending the frame to the gallery works, but I could not get the button to call makemove with the mock.
       });
 
