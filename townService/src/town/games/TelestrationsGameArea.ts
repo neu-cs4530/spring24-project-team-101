@@ -66,6 +66,9 @@ export default class TelestrationsGameArea extends GameArea<TelestrationsGame> {
         throw new InvalidParametersError(GAME_ID_MISSMATCH_MESSAGE);
       }
       if (command.move.gamePiece !== 'STUB') {
+        // I'm not sure how to test this error.
+        // It seems to be necessary in order to ensure that `move` is a `TelestrationsMove`.
+        // However, it's impossible to construct a `TelestrationsMove` that fails this check...
         throw new InvalidParametersError('Invalid game piece');
       }
       game.applyMove({

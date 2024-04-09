@@ -9,12 +9,28 @@ import {
 import Player from '../../lib/Player';
 import Game from './Game';
 import {
+  Drawing,
+  GameInstanceID,
+  TelestrationsAction,
   TelestrationsGameState,
   TelestrationsMove,
   TownEmitter,
 } from '../../types/CoveyTownSocket';
 import TelestrationsGameArea from './TelestrationsGameArea';
 import * as TelestrationsGameModule from './TelestrationsGame';
+
+function teleMove(
+  action: TelestrationsAction,
+  word?: string,
+  drawing?: Drawing,
+): TelestrationsMove {
+  return {
+    gamePiece: 'STUB',
+    action,
+    word,
+    drawing,
+  };
+}
 
 class TestingGame extends Game<TelestrationsGameState, TelestrationsMove> {
   public constructor() {
@@ -55,6 +71,8 @@ class TestingGame extends Game<TelestrationsGameState, TelestrationsMove> {
   protected _leave(): void {}
 }
 
+// FYI: Most of these tests are nearly verbatim copies from TelestrationsGameArea...
+// The only interesting difference is under `GameMove`, since we have fewer cases to check.
 describe('TelestrationsGameArea', () => {
   let gameArea: TelestrationsGameArea;
   let players: Player[];
@@ -233,6 +251,75 @@ describe('TelestrationsGameArea', () => {
           gameArea.handleCommand({ type: 'StartGame', gameID: nanoid() }, players[0]),
         ).toThrowError(GAME_ID_MISSMATCH_MESSAGE);
       });
+    });
+  });
+
+  describe('GameMove command', () => {
+    it('should throw an error if there is no game in progress and not call _emitAreaChanged', () => {
+      interactableUpdateSpy.mockClear();
+
+      expect(() =>
+        gameArea.handleCommand(
+          { type: 'GameMove', move: teleMove('GUESS', 'a'), gameID: nanoid() },
+          players[0],
+        ),
+      ).toThrowError(GAME_NOT_IN_PROGRESS_MESSAGE);
+      expect(interactableUpdateSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when there is a game in progress', () => {
+    let gameID: GameInstanceID;
+    beforeEach(() => {
+      gameID = gameArea.handleCommand({ type: 'JoinGame' }, players[0]).gameID;
+      gameArea.handleCommand({ type: 'JoinGame' }, players[1]);
+      interactableUpdateSpy.mockClear();
+    });
+
+    it('should throw an error if the gameID does not match the game and not call _emitAreaChanged', () => {
+      expect(() =>
+        gameArea.handleCommand(
+          { type: 'GameMove', move: teleMove('GUESS', 'A'), gameID: nanoid() },
+          players[0],
+        ),
+      ).toThrowError(GAME_ID_MISSMATCH_MESSAGE);
+    });
+
+    it('should call applyMove on the game and call _emitAreaChanged', () => {
+      const move: TelestrationsMove = teleMove('GUESS', 'A');
+      const applyMoveSpy = jest.spyOn(game, 'applyMove');
+      gameArea.handleCommand({ type: 'GameMove', move, gameID }, players[0]);
+      expect(applyMoveSpy).toHaveBeenCalledWith({
+        gameID: game.id,
+        playerID: players[0].id,
+        move: {
+          ...move,
+          word: 'A',
+          action: 'GUESS',
+        },
+      });
+      expect(interactableUpdateSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call _emitAreaChanged if the game throws an error', () => {
+      const move: TelestrationsMove = teleMove('GUESS', 'A');
+      const applyMoveSpy = jest.spyOn(game, 'applyMove');
+      applyMoveSpy.mockImplementationOnce(() => {
+        throw new Error('Test Error');
+      });
+      expect(() =>
+        gameArea.handleCommand({ type: 'GameMove', move, gameID }, players[0]),
+      ).toThrowError('Test Error');
+      expect(applyMoveSpy).toHaveBeenCalledWith({
+        gameID: game.id,
+        playerID: players[0].id,
+        move: {
+          ...move,
+          action: 'GUESS',
+          word: 'A',
+        },
+      });
+      expect(interactableUpdateSpy).not.toHaveBeenCalled();
     });
   });
 
