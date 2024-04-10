@@ -5,6 +5,8 @@ import { DrawingEvents } from './DrawingAreaController';
 import PlayerController from '../PlayerController';
 import DrawingAreaController from './DrawingAreaController';
 import { mockTownController } from '../../TestUtils';
+import { renderHook } from '@testing-library/react-hooks';
+import { useDrawings } from './DrawingAreaController';
 
 describe('[T2] DrawingAreaController', () => {
   // A valid ConversationAreaController to be reused within the tests
@@ -106,6 +108,47 @@ describe('[T2] DrawingAreaController', () => {
       expect(emitSpy).toHaveBeenCalledWith('drawingsChanged', [newDrawing]);
       expect(mockListeners.drawingsChanged).toHaveBeenCalledTimes(1);
     });
+    it('updates this.drawings with two drawings', () => {
+      const newDrawing: Drawing = {
+        drawingID: nanoid(),
+        authorID: nanoid(),
+        userDrawing: 'fakeDrawing',
+      };
+      const newDrawing2: Drawing = {
+        drawingID: nanoid(),
+        authorID: nanoid(),
+        userDrawing: 'fakeDrawing',
+      };
+      const newArea: GameArea<DrawingGameState> = {
+        game: {
+          state: {
+            drawings: [newDrawing, newDrawing2],
+            status: 'IN_PROGRESS',
+          },
+          id: nanoid(),
+          players: [],
+        },
+        history: [],
+        type: 'DrawingArea',
+        occupants: [],
+        id: nanoid(),
+      };
+      expect(testArea.drawings).toHaveLength(0);
+      expect(emitSpy).not.toHaveBeenCalled();
+      expect(mockListeners.drawingsChanged).not.toHaveBeenCalled();
+
+      testArea.updateFrom(newArea, []);
+
+      expect(testArea.drawings).toHaveLength(2);
+      expect(testArea.drawings.map(drawing => drawing.userDrawing)).toContain(
+        newDrawing.userDrawing,
+      );
+      expect(testArea.drawings.map(drawing => drawing.userDrawing)).toContain(
+        newDrawing2.userDrawing,
+      );
+      expect(emitSpy).toHaveBeenCalledWith('drawingsChanged', [newDrawing, newDrawing2]);
+      expect(mockListeners.drawingsChanged).toHaveBeenCalledTimes(1);
+    });
     it('does NOT update this.drawings or emit a DrawingsChanged event for unchanged set of drawings', () => {
       const drawing: Drawing = {
         drawingID: nanoid(),
@@ -158,6 +201,55 @@ describe('[T2] DrawingAreaController', () => {
         type: 'SaveDrawing',
         drawing,
       });
+    });
+    describe('useDrawings', () => {
+      beforeEach(() => {
+        drawingArea.game = {
+          state: {
+            drawings: [],
+            status: 'IN_PROGRESS',
+          },
+          id: nanoid(),
+          players: [],
+        };
+        testArea = new DrawingAreaController(testAreaID, drawingArea, townController);
+      });
+      it('should return the current list of drawings', () => {
+        const { result } = renderHook(() => useDrawings(testArea));
+        expect(result.current).toEqual([]);
+      });
+
+      it('should update when a new drawing is added', () => {
+        const { result } = renderHook(() => useDrawings(testArea));
+        const newDrawing2: Drawing = {
+          drawingID: nanoid(),
+          authorID: nanoid(),
+          userDrawing: 'fakeDrawing',
+        };
+        const newArea: GameArea<DrawingGameState> = {
+          game: {
+            state: {
+              drawings: [newDrawing2],
+              status: 'IN_PROGRESS',
+            },
+            id: nanoid(),
+            players: [],
+          },
+          history: [],
+          type: 'DrawingArea',
+          occupants: [],
+          id: nanoid(),
+        };
+        testArea.updateFrom(newArea, []);
+        expect(result.current).toHaveLength(1);
+      });
+    });
+  });
+  describe('saveData', () => {
+    it('should get and set saveData', () => {
+      const testData = 'test data';
+      testArea.saveData = testData;
+      expect(testArea.saveData).toBe(testData);
     });
   });
 });
