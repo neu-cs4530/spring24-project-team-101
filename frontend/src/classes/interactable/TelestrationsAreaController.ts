@@ -174,7 +174,8 @@ export default class TelestrationsAreaController extends GameAreaController<
       const playerNumber = this._model.game?.state.players.findIndex(
         player => player === this._townController.ourPlayer.id,
       );
-      return this._model.game.state.chains.length > playerNumber
+      // findIndex returns -1 if the player we're looking for isn't found
+      return this._model.game.state.chains.length > playerNumber && playerNumber >= 0
         ? [...this._model.game.state.chains[playerNumber]]
         : undefined;
     } else {
