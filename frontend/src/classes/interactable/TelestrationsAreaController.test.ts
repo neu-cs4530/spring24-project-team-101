@@ -1,14 +1,11 @@
 import assert from 'assert';
 import { mock } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
-import GameArea from '../../components/Town/interactables/GameArea';
 import {
-  Drawing,
   GameResult,
   GameStatus,
   PlayerID,
   TelestrationsAction,
-  TelestrationsGameState,
   TelestrationsMove,
 } from '../../types/CoveyTownSocket';
 import PlayerController from '../PlayerController';
@@ -100,8 +97,11 @@ describe('TelestrationsAreaController', () => {
   function teleMove(
     action: TelestrationsAction,
     word?: string,
-    drawing?: Drawing,
+    drawString?: string,
   ): TelestrationsMove {
+    const drawing = drawString
+      ? { authorID: 'a', drawingID: 'b', userDrawing: drawString }
+      : undefined;
     return {
       gamePiece: 'STUB',
       action,
@@ -351,6 +351,7 @@ describe('TelestrationsAreaController', () => {
       controller = telestrationsAreaControllerWithProps({
         playersInGame: otherPlayers.map(pc => pc.id),
         playersInGameFlag: true,
+        status: 'IN_PROGRESS',
       });
     });
 
@@ -367,15 +368,21 @@ describe('TelestrationsAreaController', () => {
         updateGameWithMove(controller, teleMove('PICK_WORD', 'a'), 0);
         expect(controller.isOurTurn).toBeFalsy();
         updateGameWithMove(controller, teleMove('PICK_WORD', 'a'), 1);
-      });
-
-      it('returns the current phase of the game', () => {
-        //expect(controller.makeMove).toBeCalledTimes(3);
+        expect(controller.isOurTurn).toBeTruthy();
       });
     });
 
     describe('updating gamePhase', () => {
       it('cycles the gamePhase correctly after every round', () => {});
+      it('returns the current phase of the game', () => {
+        const pick = teleMove('PICK_WORD', 'a');
+        const draw = teleMove('DRAW', undefined, 'a');
+        const guess = teleMove('GUESS', 'a');
+        expect(controller.gamePhase).toBe('PICK_WORD');
+        updateGameWithMoves(controller, [pick, pick, pick]);
+
+        expect(controller.gamePhase).toBe('DRAW');
+      });
     });
 
     describe('updating status', () => {

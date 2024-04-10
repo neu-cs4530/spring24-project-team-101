@@ -38,6 +38,8 @@ export default class TelestrationsAreaController extends GameAreaController<
         newModel.game?.state.chains.forEach((chain, index) => {
           this._chains[index] = [...chain];
         });
+        // At the moment, this isn't very useful, because nothing ever depends on all the chains.
+        // However, it could be essential for future extensions.
         this.emit('chainsChanged', this._chains);
       }
     }
