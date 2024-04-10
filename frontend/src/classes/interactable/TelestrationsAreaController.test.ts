@@ -374,8 +374,6 @@ describe('TelestrationsAreaController', () => {
       it('cycles the gamePhase correctly after every round', () => {});
       it('returns the current phase of the game', () => {
         const pick = teleMove('PICK_WORD', 'a');
-        const draw = teleMove('DRAW', undefined, 'a');
-        const guess = teleMove('GUESS', 'a');
         expect(controller.gamePhase).toBe('PICK_WORD');
         updateGameWithMoves(controller, [pick, pick, pick]);
 
