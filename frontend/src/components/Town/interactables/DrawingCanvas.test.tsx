@@ -2,8 +2,8 @@ import DrawingCanvas from './DrawingCanvas';
 import { cleanup, fireEvent, render, screen, waitFor, act } from '@testing-library/react';
 import React from 'react';
 import { mock, mockClear } from 'jest-mock-extended';
-import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
-import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
+import DrawingAreaController from '../../../classes/interactable/DrawingArea/DrawingAreaController';
+import TelestrationsAreaController from '../../../classes/interactable/Telestrations/TelestrationsAreaController';
 import { nanoid } from 'nanoid';
 import { Drawing } from '../../../../../shared/types/CoveyTownSocket';
 

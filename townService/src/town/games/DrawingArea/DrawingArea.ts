@@ -1,13 +1,18 @@
-import InvalidParametersError, { INVALID_COMMAND_MESSAGE } from '../../lib/InvalidParametersError';
-import Player from '../../lib/Player';
+import InvalidParametersError, {
+  INVALID_COMMAND_MESSAGE,
+} from '../../../lib/InvalidParametersError';
+import Player from '../../../lib/Player';
 import {
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableType,
-} from '../../types/CoveyTownSocket';
+} from '../../../types/CoveyTownSocket';
 import DrawingGame from './DrawingGame';
-import GameArea from './GameArea';
+import GameArea from '../GameArea';
 
+/**
+ * DrawingArea is a GameArea that allows players to draw on a shared canvas.
+ */
 export default class DrawingArea extends GameArea<DrawingGame> {
   protected getType(): InteractableType {
     return 'DrawingArea';
@@ -21,6 +26,12 @@ export default class DrawingArea extends GameArea<DrawingGame> {
     return this._game;
   }
 
+  /**
+   * handleCommand is called when a player sends a command to the DrawingArea
+   * @param command the command to handle
+   * @param player the player who sent the command
+   * @returns the result of the command
+   */
   public handleCommand<CommandType extends InteractableCommand>(
     command: CommandType,
     player: Player,

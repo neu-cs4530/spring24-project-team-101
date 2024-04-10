@@ -1,17 +1,17 @@
 import { nanoid } from 'nanoid';
-import { createPlayerForTesting } from '../../TestUtils';
+import { createPlayerForTesting } from '../../../TestUtils';
 import TelestrationsGame from './TelestrationsGame';
 import {
   Drawing,
   GameMove,
   TelestrationsAction,
   TelestrationsMove,
-} from '../../types/CoveyTownSocket';
+} from '../../../types/CoveyTownSocket';
 import {
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
-} from '../../lib/InvalidParametersError';
-import Player from '../../lib/Player';
+} from '../../../lib/InvalidParametersError';
+import Player from '../../../lib/Player';
 
 // jest.mock('./TelestrationsGame');
 

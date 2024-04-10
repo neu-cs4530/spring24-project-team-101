@@ -1,12 +1,18 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import PlayerController from '../../../classes/PlayerController';
-import { useInteractableAreaController } from '../../../classes/TownController';
-import useTownController from '../../../hooks/useTownController';
-import { GameStatus, InteractableID, TelestrationsAction } from '../../../types/CoveyTownSocket';
+import PlayerController from '../../../../classes/PlayerController';
+import { useInteractableAreaController } from '../../../../classes/TownController';
+import useTownController from '../../../../hooks/useTownController';
+import { GameStatus, InteractableID, TelestrationsAction } from '../../../../types/CoveyTownSocket';
 import { Button, Input, List, ListItem, useToast, Image } from '@chakra-ui/react';
-import DrawingCanvas from './DrawingCanvas';
-import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
+import DrawingCanvas from '../DrawingCanvas';
+import TelestrationsAreaController from '../../../../classes/interactable/Telestrations/TelestrationsAreaController';
 
+/**
+ * The TelestrationsArea component is a React component that displays
+ *  the game area for Telestrations
+ * @param interactableID the id of the interactable area
+ * @returns a React component that displays the game area for Telestrations
+ */
 export default function TelestrationsArea({
   interactableID,
 }: {

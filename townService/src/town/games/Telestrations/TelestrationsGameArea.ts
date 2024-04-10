@@ -2,16 +2,16 @@ import InvalidParametersError, {
   GAME_ID_MISSMATCH_MESSAGE,
   GAME_NOT_IN_PROGRESS_MESSAGE,
   INVALID_COMMAND_MESSAGE,
-} from '../../lib/InvalidParametersError';
-import Player from '../../lib/Player';
+} from '../../../lib/InvalidParametersError';
+import Player from '../../../lib/Player';
 import {
   GameInstance,
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableType,
   TelestrationsGameState,
-} from '../../types/CoveyTownSocket';
-import GameArea from './GameArea';
+} from '../../../types/CoveyTownSocket';
+import GameArea from '../GameArea';
 import TelestrationsGame from './TelestrationsGame';
 
 /**

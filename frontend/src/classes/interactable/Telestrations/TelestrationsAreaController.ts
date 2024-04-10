@@ -6,12 +6,12 @@ import {
   TelestrationsAction,
   TelestrationsGameState,
   TelestrationsMove,
-} from '../../types/CoveyTownSocket';
+} from '../../../types/CoveyTownSocket';
 import GameAreaController, {
   GameEventTypes,
   NO_GAME_IN_PROGRESS_ERROR,
   NO_GAME_STARTABLE,
-} from './GameAreaController';
+} from '../GameAreaController';
 
 export type TelestrationsEvents = GameEventTypes & {
   chainsChanged: (chains: TelestrationsMove[][]) => void;

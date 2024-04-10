@@ -2,11 +2,11 @@ import { nanoid } from 'nanoid';
 import { mock } from 'jest-mock-extended';
 import DrawingArea from './DrawingArea';
 import * as DrawingGameModule from './DrawingGame';
-import { Drawing, DrawingGameState, GameMove, TownEmitter } from '../../types/CoveyTownSocket';
-import Game from './Game';
-import Player from '../../lib/Player';
-import { createPlayerForTesting } from '../../TestUtils';
-import { INVALID_COMMAND_MESSAGE } from '../../lib/InvalidParametersError';
+import { Drawing, DrawingGameState, GameMove, TownEmitter } from '../../../types/CoveyTownSocket';
+import Game from '../Game';
+import Player from '../../../lib/Player';
+import { createPlayerForTesting } from '../../../TestUtils';
+import { INVALID_COMMAND_MESSAGE } from '../../../lib/InvalidParametersError';
 
 class MockDrawingGame extends Game<DrawingGameState, Drawing> {
   public constructor() {

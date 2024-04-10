@@ -24,10 +24,10 @@ import useTownController from '../../../hooks/useTownController';
 import { GameResult, InteractableID } from '../../../types/CoveyTownSocket';
 import ChatChannel from './ChatChannel';
 import ConnectFourArea from './ConnectFour/ConnectFourArea';
-import DrawingsArea from './DrawingsArea';
+import DrawingsArea from './DrawingArea/DrawingsArea';
 import GameAreaInteractable from './GameArea';
 import Leaderboard from './Leaderboard';
-import TelestrationsArea from './TelestrationsArea';
+import TelestrationsArea from './Telestrations/TelestrationsArea';
 import TicTacToeArea from './TicTacToe/TicTacToeArea';
 
 export const INVALID_GAME_AREA_TYPE_MESSAGE = 'Invalid game area type';
