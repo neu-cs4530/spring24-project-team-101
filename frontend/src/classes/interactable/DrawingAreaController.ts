@@ -33,7 +33,7 @@ export default class DrawingAreaController extends GameAreaController<
   }
 
   public isActive(): boolean {
-    return this.occupants.length > 0;
+    return !!this.isEmpty();
   }
 
   public isEmpty(): boolean {
