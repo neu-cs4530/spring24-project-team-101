@@ -135,7 +135,7 @@ export default function TelestrationsArea({
   } else if (gameStatus === 'OVER') {
     const chain = gameAreaController.ourChain;
     if (chain) {
-      gameStatusText = <b>Game over! Here{"'"}s where your word started:</b>;
+      gameStatusText = <b>Game over! Here{"'"}s what happened to your word:</b>;
 
       const chainComponents = chain.map(move => {
         if (move.word) {
