@@ -15,19 +15,8 @@ export default function DrawingsArea({
 }): JSX.Element {
   const gameAreaController = useInteractableAreaController<DrawingAreaController>(interactableID);
   const townController = useTownController();
-  //const [drawings, setDrawings] = useState<Drawing[]>(gameAreaController.drawings);
   const [nowDrawing, setNowDrawing] = useState(true);
   const drawings = useDrawings(gameAreaController);
-
-  //   useEffect(() => {
-  //     // const updateDrawings = (newDrawings: Drawing[]) => {
-  //     //   setDrawings(newDrawings);
-  //     // };
-  //     gameAreaController.addListener('drawingsChanged', setDrawings);
-  //     return () => {
-  //       gameAreaController.removeListener('drawingsChanged', setDrawings);
-  //     };
-  //   }, [gameAreaController]);
 
   /**
    * Gets the username corresponding to the drawing's author id, if the
@@ -53,9 +42,11 @@ export default function DrawingsArea({
 
   let displayComponent = <></>;
   if (!nowDrawing) {
+    const flipDrawings = [...drawings];
+    flipDrawings.reverse();
     displayComponent = (
       <List>
-        {drawings.map(drawing => {
+        {flipDrawings.map(drawing => {
           return (
             <ListItem key={drawing.drawingID}>
               <Image src={drawing.userDrawing}></Image>
