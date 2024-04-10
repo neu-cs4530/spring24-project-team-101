@@ -83,10 +83,12 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    * @param player The player to remove from the game
    */
   protected _leave(player: Player): void {
+    console.log('leaving');
     if (!this._inGame(player)) {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
-    if (this.state.status === 'WAITING_TO_START') {
+    const playerIndex = this.state.players.indexOf(player.id);
+    if (this.state.status === 'WAITING_TO_START' || this.state.status === 'WAITING_FOR_PLAYERS') {
       this._removePlayer(player);
       if (this.state.players.length < MINIMUM_PLAYERS) {
         this.state = {
@@ -94,6 +96,9 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
           status: 'WAITING_FOR_PLAYERS',
         };
       }
+      // Remove player's chains and moves
+      this.state.chains.slice(playerIndex, 1);
+      this.state.activeChains.slice(playerIndex, 1);
       this._startGame();
     } else if (this.state.status === 'IN_PROGRESS') {
       this.state = {
@@ -304,6 +309,7 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    * @param player the player
    */
   private _removePlayer(player: Player): void {
+    console.log('removing player');
     this.state = {
       ...this.state,
       players: this.state.players.filter(playerInGame => playerInGame !== player.id),
