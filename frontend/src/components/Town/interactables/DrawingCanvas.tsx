@@ -9,7 +9,7 @@ import { GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
 import { nanoid } from 'nanoid';
 import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
-
+//props of a Drawing Canvas, which includes the controller and the authorID
 export type DrawingCanvasProps = {
   controller: GameAreaController<GameState, GameEventTypes>;
   authorID: string;
@@ -25,13 +25,14 @@ import {
   useDisclosure,
   Image,
 } from '@chakra-ui/react';
-
+//DrawingCanvas component that allows users to draw on a canvas
 export default function DrawingCanvas({ controller, authorID }: DrawingCanvasProps): JSX.Element {
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
   const [erase, setErase] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  //frame options for the drawing
   const frameOptions = [
     { id: 'none', label: 'No Frame', imageUrl: '' },
     {
@@ -50,7 +51,7 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       imageUrl: '/images/plainframe.jpeg',
     },
   ];
-
+  //boolean to determine if the canvas is for telestrations
   let telestrations: boolean;
   const controllerType = controller.toInteractableAreaModel().type;
   if (controllerType === 'DrawingArea') {
@@ -60,7 +61,7 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
   } else {
     throw new Error('Invalid controller type');
   }
-
+  //canvas object
   const canvas = new CanvasDraw({
     hideGrid: true,
     brushColor: color,
@@ -73,6 +74,11 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
   // FRAME FUNCTIONALITY
   const [selectedFrame, setSelectedFrame] = useState(frameOptions[0]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  /**
+   *  Finalize the image and send it to the gallery
+   * @param imageUrl the final image URL to send
+   */
   const finalizeImage = async (imageUrl: string) => {
     try {
       await (controller as DrawingAreaController).makeMove({
@@ -96,6 +102,10 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       setLoading(false);
     }
   };
+  /**
+   * Send the drawing to the gallery
+   * @returns void
+   */
   const sendDrawingToGallery = async () => {
     if (!canvasRef.current) {
       toast({
@@ -111,8 +121,8 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
     offscreenCanvas.width = canvasRef.current.props.canvasWidth || 200;
     offscreenCanvas.height = canvasRef.current.props.canvasHeight || 200;
     const offscreenCtx = offscreenCanvas.getContext('2d');
-
     if (selectedFrame.id !== 'none' && offscreenCtx) {
+      // If a frame is selected, load the frame image
       const frameImage = new window.Image();
       frameImage.onload = () => {
         // Draw the frame to fill the entire off-screen canvas
@@ -166,7 +176,7 @@ export default function DrawingCanvas({ controller, authorID }: DrawingCanvasPro
       });
     }
   };
-
+  //return the canvas and the buttons
   return (
     <div>
       <CanvasDraw

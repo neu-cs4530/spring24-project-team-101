@@ -227,7 +227,10 @@ describe('DrawingCanvas', () => {
         fireEvent.click(frameOption);
         // Attempt to send to gallery
         fireEvent.click(screen.getByText('Send with Frame'));
-        //I wanted to test more of how sending the frame to the gallery works, but I could not get the button to call makemove with the mock.
+        //I wanted to test more of how sending the frame to the gallery works,
+        //but I could not get the button to call makemove with the mock.
+        // Therefore my testing for this functionality was mainly manual -
+        // I made sure each button worked as well as the modal opened and closed as expected.
       });
 
       it('should display a toast when sending to the gallery fails', async () => {
