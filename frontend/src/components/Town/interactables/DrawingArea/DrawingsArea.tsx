@@ -8,6 +8,12 @@ import useTownController from '../../../../hooks/useTownController';
 import { Drawing, InteractableID } from '../../../../types/CoveyTownSocket';
 import DrawingCanvas from '../DrawingCanvas';
 
+/**
+ * The DrawingsArea component is a React component that displays
+ *  a list of drawings in the gallery
+ * @param interactableID the id of the interactable area
+ * @returns a React component that displays a list of drawings in the gallery
+ */
 export default function DrawingsArea({
   interactableID,
 }: {
@@ -33,13 +39,18 @@ export default function DrawingsArea({
     }
     return username;
   };
+  /**
+   * Formats a date into a string with the format "Month Day, Year"
+   * @param date The date to format
+   * @returns The formatted date
+   */
   const formatDate = (date: number | Date | undefined) =>
     new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'long',
       day: '2-digit',
     }).format(date);
-
+  // display the drawings in reverse order, most recent first
   let displayComponent = <></>;
   if (!nowDrawing) {
     const flipDrawings = [...drawings];

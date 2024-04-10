@@ -7,6 +7,9 @@ import {
 } from '../../../types/CoveyTownSocket';
 import Game from '../Game';
 
+/**
+ * DrawingGame is a Game that allows players to draw on a shared canvas.
+ */
 export default class DrawingGame extends Game<DrawingGameState, DrawingMove> {
   public constructor() {
     super({
@@ -30,14 +33,26 @@ export default class DrawingGame extends Game<DrawingGameState, DrawingMove> {
     this.state.drawings = drawings;
   }
 
+  /**
+   * When a player joins the game, the game is set to 'IN_PROGRESS'.
+   * @param player the player who joined
+   */
   protected _join(player: Player): void {
     this.state.status = 'IN_PROGRESS';
   }
 
+  /**
+   * When a player leaves the game, the game is set to 'OVER'.
+   * @param player the player who left
+   */
   protected _leave(player: Player): void {
     this.state.status = 'OVER';
   }
 
+  /**
+   * Converts the DrawingGame to a GameInstance.
+   * @returns the GameInstance representation of this DrawingGame
+   */
   public toModel(): GameInstance<DrawingGameState> {
     return {
       state: this.state,

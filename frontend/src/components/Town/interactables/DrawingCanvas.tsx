@@ -9,7 +9,9 @@ import { GameState } from '../../../types/CoveyTownSocket';
 import DrawingAreaController from '../../../classes/interactable/DrawingArea/DrawingAreaController';
 import { nanoid } from 'nanoid';
 import TelestrationsAreaController from '../../../classes/interactable/Telestrations/TelestrationsAreaController';
-//props of a Drawing Canvas, which includes the controller and the authorID
+/**
+ * DrawingCanvasProps are the props of the DrawingCanvas component.
+ */
 export type DrawingCanvasProps = {
   controller: GameAreaController<GameState, GameEventTypes>;
   authorID: string;
@@ -25,7 +27,12 @@ import {
   useDisclosure,
   Image,
 } from '@chakra-ui/react';
-//DrawingCanvas component that allows users to draw on a canvas
+/**
+ * DrawingCanvas component that allows users to draw on a canvas
+ * @param controller the controller for the drawing area
+ * @param authorID the id of the author of the drawing
+ * @returns a DrawingCanvas component
+ */
 export default function DrawingCanvas({ controller, authorID }: DrawingCanvasProps): JSX.Element {
   const [color, setColor] = useState('#000000');
   const [radius, setRadius] = useState(10);
