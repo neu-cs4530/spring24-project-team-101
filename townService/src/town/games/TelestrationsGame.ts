@@ -86,7 +86,8 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
     if (!this._inGame(player)) {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
-    if (this.state.status === 'WAITING_TO_START') {
+    const playerIndex = this.state.players.indexOf(player.id);
+    if (this.state.status === 'WAITING_TO_START' || this.state.status === 'WAITING_FOR_PLAYERS') {
       this._removePlayer(player);
       if (this.state.players.length < MINIMUM_PLAYERS) {
         this.state = {
@@ -94,6 +95,9 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
           status: 'WAITING_FOR_PLAYERS',
         };
       }
+      // Remove player's chains and moves
+      this.state.chains.slice(playerIndex, 1);
+      this.state.activeChains.slice(playerIndex, 1);
       this._startGame();
     } else if (this.state.status === 'IN_PROGRESS') {
       this.state = {
