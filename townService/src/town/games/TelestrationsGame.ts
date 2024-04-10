@@ -83,7 +83,6 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    * @param player The player to remove from the game
    */
   protected _leave(player: Player): void {
-    console.log('leaving');
     if (!this._inGame(player)) {
       throw new InvalidParametersError(PLAYER_NOT_IN_GAME_MESSAGE);
     }
@@ -309,7 +308,6 @@ export default class TelestrationsGame extends Game<TelestrationsGameState, Tele
    * @param player the player
    */
   private _removePlayer(player: Player): void {
-    console.log('removing player');
     this.state = {
       ...this.state,
       players: this.state.players.filter(playerInGame => playerInGame !== player.id),
