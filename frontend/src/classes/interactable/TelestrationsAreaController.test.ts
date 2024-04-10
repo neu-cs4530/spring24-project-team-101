@@ -376,7 +376,6 @@ describe('TelestrationsAreaController', () => {
         const pick = teleMove('PICK_WORD', 'a');
         expect(controller.gamePhase).toBe('PICK_WORD');
         updateGameWithMoves(controller, [pick, pick, pick]);
-
       });
     });
 
