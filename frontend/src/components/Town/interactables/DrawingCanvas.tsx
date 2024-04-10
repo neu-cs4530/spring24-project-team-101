@@ -6,9 +6,9 @@ import GameAreaController, {
   GameEventTypes,
 } from '../../../classes/interactable/GameAreaController';
 import { GameState } from '../../../types/CoveyTownSocket';
-import DrawingAreaController from '../../../classes/interactable/DrawingAreaController';
+import DrawingAreaController from '../../../classes/interactable/DrawingArea/DrawingAreaController';
 import { nanoid } from 'nanoid';
-import TelestrationsAreaController from '../../../classes/interactable/TelestrationsAreaController';
+import TelestrationsAreaController from '../../../classes/interactable/Telestrations/TelestrationsAreaController';
 //props of a Drawing Canvas, which includes the controller and the authorID
 export type DrawingCanvasProps = {
   controller: GameAreaController<GameState, GameEventTypes>;

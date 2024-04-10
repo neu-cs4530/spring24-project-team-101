@@ -1,10 +1,15 @@
 import { mock, mockClear } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
-import { Drawing, DrawingGameState, GameArea, PlayerLocation } from '../../types/CoveyTownSocket';
+import {
+  Drawing,
+  DrawingGameState,
+  GameArea,
+  PlayerLocation,
+} from '../../../types/CoveyTownSocket';
 import { DrawingEvents } from './DrawingAreaController';
-import PlayerController from '../PlayerController';
+import PlayerController from '../../PlayerController';
 import DrawingAreaController from './DrawingAreaController';
-import { mockTownController } from '../../TestUtils';
+import { mockTownController } from '../../../TestUtils';
 import { renderHook } from '@testing-library/react-hooks';
 import { useDrawings } from './DrawingAreaController';
 

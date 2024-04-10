@@ -7,10 +7,10 @@ import {
   PlayerID,
   TelestrationsAction,
   TelestrationsMove,
-} from '../../types/CoveyTownSocket';
-import PlayerController from '../PlayerController';
-import TownController from '../TownController';
-import { NO_GAME_IN_PROGRESS_ERROR } from './GameAreaController';
+} from '../../../types/CoveyTownSocket';
+import PlayerController from '../../PlayerController';
+import TownController from '../../TownController';
+import { NO_GAME_IN_PROGRESS_ERROR } from '../GameAreaController';
 import TelestrationsAreaController from './TelestrationsAreaController';
 
 describe('TelestrationsAreaController', () => {

@@ -1,11 +1,11 @@
-import Player from '../../lib/Player';
+import Player from '../../../lib/Player';
 import {
   Drawing as DrawingMove,
   DrawingGameState,
   GameInstance,
   GameMove,
-} from '../../types/CoveyTownSocket';
-import Game from './Game';
+} from '../../../types/CoveyTownSocket';
+import Game from '../Game';
 
 export default class DrawingGame extends Game<DrawingGameState, DrawingMove> {
   public constructor() {

@@ -3,16 +3,16 @@ import InvalidParametersError, {
   INVALID_MOVE_MESSAGE,
   PLAYER_ALREADY_IN_GAME_MESSAGE,
   PLAYER_NOT_IN_GAME_MESSAGE,
-} from '../../lib/InvalidParametersError';
-import Player from '../../lib/Player';
+} from '../../../lib/InvalidParametersError';
+import Player from '../../../lib/Player';
 import {
   GameMove,
   PlayerID,
   TelestrationsAction,
   TelestrationsGameState,
   TelestrationsMove,
-} from '../../types/CoveyTownSocket';
-import Game from './Game';
+} from '../../../types/CoveyTownSocket';
+import Game from '../Game';
 
 const MINIMUM_PLAYERS = 2;
 

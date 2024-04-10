@@ -1,13 +1,13 @@
 import { mock } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
-import { createPlayerForTesting } from '../../TestUtils';
+import { createPlayerForTesting } from '../../../TestUtils';
 import {
   GAME_ID_MISSMATCH_MESSAGE,
   GAME_NOT_IN_PROGRESS_MESSAGE,
   INVALID_COMMAND_MESSAGE,
-} from '../../lib/InvalidParametersError';
-import Player from '../../lib/Player';
-import Game from './Game';
+} from '../../../lib/InvalidParametersError';
+import Player from '../../../lib/Player';
+import Game from '../Game';
 import {
   Drawing,
   GameInstanceID,
@@ -15,7 +15,7 @@ import {
   TelestrationsGameState,
   TelestrationsMove,
   TownEmitter,
-} from '../../types/CoveyTownSocket';
+} from '../../../types/CoveyTownSocket';
 import TelestrationsGameArea from './TelestrationsGameArea';
 import * as TelestrationsGameModule from './TelestrationsGame';
 

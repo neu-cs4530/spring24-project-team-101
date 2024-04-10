@@ -1,6 +1,6 @@
-import { Drawing, DrawingGameState, GameArea } from '../../types/CoveyTownSocket';
+import { Drawing, DrawingGameState, GameArea } from '../../../types/CoveyTownSocket';
 import { useState, useEffect } from 'react';
-import GameAreaController, { GameEventTypes } from './GameAreaController';
+import GameAreaController, { GameEventTypes } from '../GameAreaController';
 import _ from 'lodash';
 
 export type DrawingEvents = GameEventTypes & {

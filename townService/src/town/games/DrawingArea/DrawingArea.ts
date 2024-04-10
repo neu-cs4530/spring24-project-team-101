@@ -1,12 +1,14 @@
-import InvalidParametersError, { INVALID_COMMAND_MESSAGE } from '../../lib/InvalidParametersError';
-import Player from '../../lib/Player';
+import InvalidParametersError, {
+  INVALID_COMMAND_MESSAGE,
+} from '../../../lib/InvalidParametersError';
+import Player from '../../../lib/Player';
 import {
   InteractableCommand,
   InteractableCommandReturnType,
   InteractableType,
-} from '../../types/CoveyTownSocket';
+} from '../../../types/CoveyTownSocket';
 import DrawingGame from './DrawingGame';
-import GameArea from './GameArea';
+import GameArea from '../GameArea';
 
 export default class DrawingArea extends GameArea<DrawingGame> {
   protected getType(): InteractableType {

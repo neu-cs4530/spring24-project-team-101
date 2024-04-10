@@ -36,13 +36,13 @@ import {
 } from '../types/TypeUtils';
 import ConnectFourAreaController from './interactable/ConnectFourAreaController';
 import ConversationAreaController from './interactable/ConversationAreaController';
-import DrawingAreaController from './interactable/DrawingAreaController';
+import DrawingAreaController from './interactable/DrawingArea/DrawingAreaController';
 import GameAreaController, { GameEventTypes } from './interactable/GameAreaController';
 import InteractableAreaController, {
   BaseInteractableEventMap,
   GenericInteractableAreaController,
 } from './interactable/InteractableAreaController';
-import TelestrationsAreaController from './interactable/TelestrationsAreaController';
+import TelestrationsAreaController from './interactable/Telestrations/TelestrationsAreaController';
 import TicTacToeAreaController from './interactable/TicTacToeAreaController';
 import ViewingAreaController from './interactable/ViewingAreaController';
 import PlayerController from './PlayerController';

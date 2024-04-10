@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { createPlayerForTesting } from '../../TestUtils';
+import { createPlayerForTesting } from '../../../TestUtils';
 import DrawingGame from './DrawingGame';
 
 const makeDrawing = (str: string) => ({

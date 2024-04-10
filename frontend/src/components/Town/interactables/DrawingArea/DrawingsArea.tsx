@@ -2,11 +2,11 @@ import { Button, Image, List, ListItem } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import DrawingAreaController, {
   useDrawings,
-} from '../../../classes/interactable/DrawingAreaController';
-import { useInteractableAreaController } from '../../../classes/TownController';
-import useTownController from '../../../hooks/useTownController';
-import { Drawing, InteractableID } from '../../../types/CoveyTownSocket';
-import DrawingCanvas from './DrawingCanvas';
+} from '../../../../classes/interactable/DrawingArea/DrawingAreaController';
+import { useInteractableAreaController } from '../../../../classes/TownController';
+import useTownController from '../../../../hooks/useTownController';
+import { Drawing, InteractableID } from '../../../../types/CoveyTownSocket';
+import DrawingCanvas from '../DrawingCanvas';
 
 export default function DrawingsArea({
   interactableID,

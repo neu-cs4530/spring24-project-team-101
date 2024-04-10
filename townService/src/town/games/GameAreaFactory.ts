@@ -2,8 +2,8 @@ import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import { BoundingBox, TownEmitter } from '../../types/CoveyTownSocket';
 import InteractableArea from '../InteractableArea';
 import ConnectFourGameArea from './ConnectFourGameArea';
-import TelestrationsGameArea from './TelestrationsGameArea';
-import DrawingArea from './DrawingArea';
+import TelestrationsGameArea from './Telestrations/TelestrationsGameArea';
+import DrawingArea from './DrawingArea/DrawingArea';
 import TicTacToeGameArea from './TicTacToeGameArea';
 
 /**
