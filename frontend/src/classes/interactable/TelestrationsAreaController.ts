@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   Drawing,
   GameArea,
@@ -33,10 +34,12 @@ export default class TelestrationsAreaController extends GameAreaController<
   protected _updateFrom(newModel: GameArea<TelestrationsGameState>): void {
     super._updateFrom(newModel);
     if (newModel.game) {
-      this._model.game?.state.chains.forEach((chain, index) => {
-        this._chains[index] = [...chain];
+      if (!_.isEqual(newModel.game.state.chains, this._chains)) {
+        newModel.game?.state.chains.forEach((chain, index) => {
+          this._chains[index] = [...chain];
+        });
         this.emit('chainsChanged', this._chains);
-      });
+      }
     }
   }
 
